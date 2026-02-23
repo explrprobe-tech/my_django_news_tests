@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    command: pytest tests/ -v --cov=.
+    depends_on:
+      - test-db
+      - app-under-test
+    environment:
+      APP_URL: http://app-under-test:8000
+      DATABASE_URL: postgresql://postgres:postgres@test-db:5432/testdb
+    volumes:
+      - ./tests:/app/tests
+      - ./reports:/app/reports
+
+  app-under-test:
+    image: your-django-app:latest  # Built from your app repo
+    ports:
+      - "8000:8000"
+    depends_on:
+      - test-db
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@test-db:5432/testdb
+      DEBUG: 'True'
+
+  test-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: testdb
+    ports:
+      - "5434:5432"
