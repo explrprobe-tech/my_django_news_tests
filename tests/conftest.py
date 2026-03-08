@@ -2,6 +2,7 @@ import pytest
 import requests
 from typing import Dict, Any, Generator
 from faker import Faker
+from helpers import get_csrf_token
 
 
 
@@ -64,30 +65,22 @@ def unauthenticated_session(http_session: requests.Session) -> requests.Session:
     """Returns clean session (not logged in)"""
     return http_session
 
-@pytest.fixture
-def authenticated_session(
-    http_session: requests.Session,
-    base_url: str,
-    test_user_data: Dict
-) -> Generator[requests.Session, None, None]:
-    """Creates a session that is logged in"""
-    print(f"\n🔐 Setting up authenticated session for {test_user_data['username']}")
-
-    def get_csrf_token(html_content: str) -> str:
-        """Extract csrf token from HTML using regex"""
-        import re
-        match = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', html_content)
-        return match.group(1) if match else None
+@pytest.fixture(scope="session")
+def registered_user(http_session: requests.Session,
+                    base_url: str):
+    """Creates user if it doesn't exist"""
+    username = "autotest_user"
+    password = "auto_123"
 
     register_url = f"{base_url}/register/"
     register_page_response = http_session.get(register_url)
     csrf_token = get_csrf_token(register_page_response.text)
     register_data ={
         "csrfmiddlewaretoken": csrf_token,
-        "username": test_user_data["username"],
-        "password1": test_user_data["password"],
-        "password2": test_user_data["password"],
-        "email": test_user_data["email"]
+        "username": username,
+        "password1": password,
+        "password2": password,
+        "email": "autotests_user@example.ru"
     }
     headers = {
         "Referer": register_url,
@@ -96,25 +89,37 @@ def authenticated_session(
     http_session.post(register_url,
                           data=register_data,
                           headers=headers)
+    return {"username": username, "password": password}
+
+
+@pytest.fixture
+def authenticated_session(
+    http_session: requests.Session,
+    registered_user: Dict,
+    base_url: str,
+    test_user_data: Dict
+) -> Generator[requests.Session, None, None]:
+    """Creates a session that is logged in"""
+    print(f"\n🔐 Setting up authenticated session for {test_user_data['username']}")
 
     # Login
     login_url = f"{base_url}/login/"
-    login_page_response = http_session.get(login_url)
-    csrf_token = get_csrf_token(login_page_response.text)
+    login_page = http_session.get(login_url)
+    csrf_token = get_csrf_token(login_page.text)
     login_data = {
         "csrfmiddlewaretoken": csrf_token,
-        "username": test_user_data["username"],
-        "password": test_user_data["password"]
+        "username": registered_user["username"],
+        "password": registered_user["password"]
     }
     headers = {
-        "Reger": login_url,
+        "Referer": login_url,
         "X-CSRFToken": csrf_token
     }
     response = http_session.post(login_url,
                                  data=login_data,
                                  headers=headers)
 
-    if response != 200:
+    if response.status_code != 200:
         pytest.skip(f"Could not login: {response.status_code}")
 
     print(f"Successfully authenticated as {test_user_data['username']}")
