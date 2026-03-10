@@ -4,7 +4,7 @@ def test_secret_page_admin_user(admin_session, base_url):
     """Autharizated user can open secret page"""
     response = admin_session.get(f"{base_url}/secret/")
     assert response.status_code == 200
-    assert "Секретная страница" in response.text
+    assert "SOLAR OBSERVATORY" in response.text
 
 # def test_secret_page_regular_user(authenticated_session, base_url):
 #     """Autharizated user can open secret page"""

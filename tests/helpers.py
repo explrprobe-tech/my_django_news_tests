@@ -1,11 +1,11 @@
 admin_user = {"username": "autotest_admin",
-              "password": "autotest_admin_123!"}
+              "password": "autoadmin_123456789!"}
 editor_user = {"username": "autotest_editor",
-               "password": "autotest_editor_123!"}
+               "password": "autoeditor_123456789!"}
 regular_user = {"username": "autotest_regular",
-                "password": "autotest_regular_123!"}
+                "password": "autoregular_123456789!"}
 
-def _login_user(session, base_url, credentials, csrf_extractor):
+def login_user(session, base_url, credentials, csrf_extractor):
     """Helper to login any user"""
     login_page = session.get(f"{base_url}/login/")
     csrf_token = csrf_extractor(login_page.text)

@@ -2,7 +2,7 @@ import pytest
 import requests
 from typing import Dict, Any, Generator
 from faker import Faker
-from helpers import admin_user, editor_user, regular_user, _login_user, get_csrf_token
+from helpers import admin_user, editor_user, regular_user, login_user, get_csrf_token
 
 
 
@@ -52,7 +52,7 @@ def unauthenticated_session(http_session: requests.Session) -> requests.Session:
 def admin_session(http_session, base_url):
     """Session for admin user"""
     credentials = admin_user
-    session = _login_user(http_session, base_url, credentials, get_csrf_token)
+    session = login_user(http_session, base_url, credentials, get_csrf_token)
     yield session
     session.get(f"{base_url}/logout/")
 
@@ -60,7 +60,7 @@ def admin_session(http_session, base_url):
 def editor_session(http_session, base_url):
     """Session for editor user"""
     credentials = editor_user
-    session = _login_user(http_session, base_url, credentials, get_csrf_token)
+    session = login_user(http_session, base_url, credentials, get_csrf_token)
     yield session
     session.get(f"{base_url}/logout/")
 
@@ -68,7 +68,7 @@ def editor_session(http_session, base_url):
 def regular_session(http_session, base_url, credentials):
     """Session for regular user"""
     credentials = regular_user
-    session = _login_user(http_session, base_url, credentials, get_csrf_token)
+    session = login_user(http_session, base_url, credentials, get_csrf_token)
     yield session
     session.get(f"{base_url}/logout/")
 
