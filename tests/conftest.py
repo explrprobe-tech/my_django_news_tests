@@ -2,7 +2,7 @@ import pytest
 import requests
 from typing import Dict, Any, Generator
 from faker import Faker
-from helpers import get_csrf_token
+from helpers import admin_user, editor_user, regular_user, _login_user, get_csrf_token
 
 
 
@@ -21,24 +21,6 @@ def fake() -> Faker:
     """Provides a Faker instance for generating fake data.
        Create fresh for each test that needs it."""
     return Faker()
-
-@pytest.fixture
-def test_user_data(fake) -> Dict[str, str]:
-    """Generate random test user data"""
-    return {
-        "username": fake.user_name(),
-        "password": fake.password(),
-        "email": fake.email()
-    }
-
-@pytest.fixture
-def admin_user() -> Dict[str, str]:
-    """Provides admin user data"""
-    return {
-        "username": "admin123",
-        "password": "admin123",
-        "email": "admin@example.com"
-    }   
 
 @pytest.fixture
 def test_news_data(fake) -> Dict[str, str]:
@@ -60,76 +42,35 @@ def http_session() -> requests.Session:
     })
     return session
 
+
 @pytest.fixture
 def unauthenticated_session(http_session: requests.Session) -> requests.Session:
     """Returns clean session (not logged in)"""
     return http_session
 
-@pytest.fixture(scope="session")
-def registered_user(http_session: requests.Session,
-                    base_url: str):
-    """Creates user if it doesn't exist"""
-    username = "autotest_user"
-    password = "auto_123"
-
-    register_url = f"{base_url}/register/"
-    register_page_response = http_session.get(register_url)
-    csrf_token = get_csrf_token(register_page_response.text)
-    register_data ={
-        "csrfmiddlewaretoken": csrf_token,
-        "username": username,
-        "password1": password,
-        "password2": password,
-        "email": "autotests_user@example.ru"
-    }
-    headers = {
-        "Referer": register_url,
-        "X-CSRFToken": csrf_token
-    }
-    http_session.post(register_url,
-                          data=register_data,
-                          headers=headers)
-    return {"username": username, "password": password}
-
+@pytest.fixture
+def admin_session(http_session, base_url):
+    """Session for admin user"""
+    credentials = admin_user
+    session = _login_user(http_session, base_url, credentials, get_csrf_token)
+    yield session
+    session.get(f"{base_url}/logout/")
 
 @pytest.fixture
-def authenticated_session(
-    http_session: requests.Session,
-    registered_user: Dict,
-    base_url: str,
-    test_user_data: Dict
-) -> Generator[requests.Session, None, None]:
-    """Creates a session that is logged in"""
-    print(f"\n🔐 Setting up authenticated session for {test_user_data['username']}")
+def editor_session(http_session, base_url):
+    """Session for editor user"""
+    credentials = editor_user
+    session = _login_user(http_session, base_url, credentials, get_csrf_token)
+    yield session
+    session.get(f"{base_url}/logout/")
 
-    # Login
-    login_url = f"{base_url}/login/"
-    login_page = http_session.get(login_url)
-    csrf_token = get_csrf_token(login_page.text)
-    login_data = {
-        "csrfmiddlewaretoken": csrf_token,
-        "username": registered_user["username"],
-        "password": registered_user["password"]
-    }
-    headers = {
-        "Referer": login_url,
-        "X-CSRFToken": csrf_token
-    }
-    response = http_session.post(login_url,
-                                 data=login_data,
-                                 headers=headers)
-
-    if response.status_code != 200:
-        pytest.skip(f"Could not login: {response.status_code}")
-
-    print(f"Successfully authenticated as {test_user_data['username']}")
-
-    # GIVE THE SESSION TO THE TEST
-    yield http_session
-
-    # CLEANUP (after test)
-    print(f"Cleaning up authenticated session")
-    http_session.get(f"{base_url}/logout/")
+@pytest.fixture
+def regular_session(http_session, base_url, credentials):
+    """Session for regular user"""
+    credentials = regular_user
+    session = _login_user(http_session, base_url, credentials, get_csrf_token)
+    yield session
+    session.get(f"{base_url}/logout/")
 
 @pytest.fixture
 def db_cleanup():
