@@ -65,7 +65,7 @@ def editor_session(http_session, base_url):
     session.get(f"{base_url}/logout/")
 
 @pytest.fixture
-def regular_session(http_session, base_url, credentials):
+def regular_session(http_session, base_url):
     """Session for regular user"""
     credentials = regular_user
     session = login_user(http_session, base_url, credentials, get_csrf_token)
