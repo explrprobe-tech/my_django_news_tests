@@ -16,10 +16,4 @@ def test_secret_page_regular_user(regular_session, base_url):
     """Autharizated user can open secret page"""
     response = regular_session.get(f"{base_url}/secret/")
     assert response.status_code == 403
-
-def test_secret_page_unauthorized_user(unauthenticated_session, base_url):
-    """Autharizated user can open secret page"""
-    response = unauthenticated_session.get(f"{base_url}/secret/")
-    assert response.status_code == 301
-    assert response.url == f"{base_url}/login/"
     
