@@ -42,7 +42,6 @@ def http_session() -> requests.Session:
     })
     return session
 
-
 @pytest.fixture
 def unauthenticated_session(http_session: requests.Session) -> requests.Session:
     """Returns clean session (not logged in)"""
