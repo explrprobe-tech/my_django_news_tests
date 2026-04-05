@@ -7,8 +7,7 @@ regular_user = {"username": "autotest_regular",
 
 def login_user(session, base_url, credentials, csrf_extractor):
     """Helper to login any user"""
-    login_page = session.get(f"{base_url}/login/")
-    csrf_token = csrf_extractor(login_page.text)
+    csrf_token = csrf_extractor(session=session, url=f"{base_url}/login/")
     
     response = session.post(
         f"{base_url}/login/",
@@ -26,8 +25,9 @@ def login_user(session, base_url, credentials, csrf_extractor):
     return session
     
 
-def get_csrf_token(html_content: str):
+def get_csrf_token(session, url: str):
     """Extract csrf token from HTML using regex"""
+    html_content = session.get(url).text
     import re
     match = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', html_content)
     return match.group(1) if match else None

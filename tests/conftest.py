@@ -22,16 +22,6 @@ def fake() -> Faker:
        Create fresh for each test that needs it."""
     return Faker()
 
-@pytest.fixture
-def test_news_data(fake) -> Dict[str, str]:
-    """Generate random test news data"""
-    return {
-        "title": fake.sentence(nb_words=6),
-        "content": "\n\n".join(fake.paragraphs(nb=3)),
-        "short_description": fake.sentence(nb_words=15),
-        "is_published": True
-    }
-
 @pytest.fixture(scope="session")
 def http_session() -> requests.Session:
     """Creates a requests session that can be reused"""
@@ -70,6 +60,40 @@ def regular_session(http_session, base_url):
     session = login_user(http_session, base_url, credentials, get_csrf_token)
     yield session
     session.get(f"{base_url}/logout/")
+
+@pytest.fixture
+def test_category_data(fake):
+    """Generate random category title"""
+    return {
+        "title": fake.word().capitalize()
+    }
+
+@pytest.fixture
+def test_category_url(test_category_data: Dict[str, str], editor_session, base_url):
+    """Create category and return category id"""
+    url = f"{base_url}/category/add_category/"
+    csrf_token = get_csrf_token(session=editor_session, url=url)
+    test_category_data["csrfmiddlewaretoken"] = csrf_token
+    category_id = editor_session.post(url=url, data=test_category_data)
+    yield category_id.url
+    #NEED TO DO HERE autodeletion
+@pytest.fixture
+def test_news_data(fake, test_category_id) -> Dict[str, str]:
+    """Generate random test news data"""
+    return {
+        "title": fake.sentence(nb_words=6),
+        "content": "\n\n".join(fake.paragraphs(nb=3)),
+        "short_description": fake.sentence(nb_words=15),
+        "category": test_category_id,
+        "is_published": True
+    }
+
+@pytest.fixture
+def test_news_url(test_news_data: Dict, editor_session, base_url):
+    """Create news and return news id"""
+    url = f"{base_url}/add_news/"
+    news_id = editor_session.post(url=url, data=test_news_data)
+    return news_id.url #replace for yield and add cleaner
 
 @pytest.fixture
 def db_cleanup():
