@@ -74,9 +74,9 @@ def test_category_url(test_category_data: Dict[str, str], editor_session, base_u
     url = f"{base_url}/category/add_category/"
     csrf_token = get_csrf_token(session=editor_session, url=url)
     test_category_data["csrfmiddlewaretoken"] = csrf_token
-    category_id = editor_session.post(url=url, data=test_category_data)
-    yield category_id.url
-    #NEED TO DO HERE autodeletion
+    category = editor_session.post(url=url, data=test_category_data)
+    yield category.url
+    editor_session.post(url=f"{category.url}delete/", data={"csrfmiddlewaretoken": csrf_token})
 @pytest.fixture
 def test_news_data(fake, test_category_id) -> Dict[str, str]:
     """Generate random test news data"""
