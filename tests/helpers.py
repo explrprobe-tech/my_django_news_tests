@@ -5,9 +5,9 @@ editor_user = {"username": "autotest_editor",
 regular_user = {"username": "autotest_regular",
                 "password": "autoregular_123456789!"}
 
-def login_user(session, base_url, credentials, csrf_extractor):
+def login_user(session, base_url, credentials, csrf_extract):
     """Helper to login any user"""
-    csrf_token = csrf_extractor(session=session, url=f"{base_url}/login/")
+    csrf_token = csrf_extract(session=session, url=f"{base_url}/login/")
     
     response = session.post(
         f"{base_url}/login/",
