@@ -50,6 +50,7 @@ jobs:
 
     - name: Install tests dependencies
       run: |
+        cd tests
         pip install -r requirements-test.txt
 
     - name: Run tests
