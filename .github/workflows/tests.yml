@@ -1,0 +1,58 @@
+name: Pytest CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    
+    steps:
+    - name: Checkout Django Website
+      uses: actions/checkout@v4
+      with:
+        repository: explrprobe-tech/my_django_news_website
+        path: django-website
+
+    - name: Checkout tests
+      uses: actions/checkout@v4
+      with:
+        path: tests
+      
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Django Website dependecies
+      run: |
+        cd django-website/mysite
+        pip install -r requirements.txt
+
+    - name: Validate Django Website
+      run: |
+        cd django-website/mysite
+        python manage.py check
+
+    - name: Check migration Django Website
+      run: |
+        cd django-website/musite
+        python manage.py makemigrations --check --dry-run
+
+    - name: Run Django Website
+      run: |
+        cd django-website/mysite
+        python manage.py runserver 0.0.0.0:8000 &
+
+    - name: Install tests dependencies
+      run: |
+        pip install -r requirements-test.txt
+
+    - name: Run tests
+      run: |
+        cd tests/tests
+        pytest api/ -v
