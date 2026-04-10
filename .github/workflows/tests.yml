@@ -40,7 +40,7 @@ jobs:
 
     - name: Check migration Django Website
       run: |
-        cd django-website/musite
+        cd django-website/mysite
         python manage.py makemigrations --check --dry-run
 
     - name: Run Django Website
