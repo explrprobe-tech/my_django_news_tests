@@ -1,3 +1,5 @@
+import requests
+
 admin_user = {"username": "autotest_admin",
               "password": "autoadmin_123456789!"}
 editor_user = {"username": "autotest_editor",
@@ -16,7 +18,7 @@ def login_user(session, base_url, credentials, csrf_extract):
             "username": credentials["username"],
             "password": credentials["password"]
         },
-        headers={"Referer": f"{base_url}/login/"}
+        headers={"Referer": f"{base_url}login/"}
     )
     
     if response.status_code not in [200, 302]:
@@ -24,6 +26,16 @@ def login_user(session, base_url, credentials, csrf_extract):
     
     return session
     
+def object_delete(session, url_object):
+    """Uses delete method to delete object by url and return response"""
+    url_delete_method = f"{url_object}delete/"
+    csrftoken = session.cookies.get('csrftoken')
+    response = session.post(url=url_delete_method, 
+                                  data={
+                                        'csrfmiddlewaretoken': csrftoken
+                                       }
+                                  )
+    return response
 
 def get_csrf_token(session, url: str):
     """Extract csrf token from HTML using regex"""

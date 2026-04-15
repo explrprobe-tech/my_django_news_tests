@@ -2,7 +2,7 @@ import pytest
 import requests
 from typing import Dict, Any, Generator
 from faker import Faker
-from helpers import admin_user, editor_user, regular_user, login_user, get_csrf_token
+from helpers import admin_user, editor_user, regular_user, login_user, get_csrf_token, object_delete
 import re
 
 
@@ -23,10 +23,11 @@ def fake() -> Faker:
        Create fresh for each test that needs it."""
     return Faker()
 
-@pytest.fixture(scope="session")
-def http_session() -> requests.Session:
-    """Creates a requests session that can be reused"""
+@pytest.fixture
+def unauthenticated_session():
+    """Returns clean session (not logged in)"""
     session = requests.Session()
+    session.cookies.clear()
     session.headers.update({
         "User-Agent": "MyAutotestBot/1.0",
         "Accept": "application/json"
@@ -34,37 +35,71 @@ def http_session() -> requests.Session:
     return session
 
 @pytest.fixture
-def unauthenticated_session(http_session: requests.Session) -> requests.Session:
-    """Returns clean session (not logged in)"""
-    return http_session
-
-@pytest.fixture
-def admin_session(http_session, base_url):
+def admin_session(base_url):
     """Session for admin user"""
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "MyAutotestBot/1.0",
+        "Accept": "application/json"
+    })
     credentials = admin_user
-    session = login_user(http_session, base_url, credentials, get_csrf_token)
+    session = login_user(session, base_url, credentials, get_csrf_token)
     yield session
     session.get(f"{base_url}logout/")
 
 @pytest.fixture
-def editor_session(http_session, base_url):
+def editor_session(base_url):
     """Session for editor user"""
+    session = requests.Session()
+    session.cookies.clear()
+    session.headers.update({
+        "User-Agent": "MyAutotestBot/1.0",
+        "Accept": "application/json"
+    })
     credentials = editor_user
-    session = login_user(http_session, base_url, credentials, get_csrf_token)
+    session = login_user(session, base_url, credentials, get_csrf_token)
     yield session
     session.get(f"{base_url}logout/")
 
 @pytest.fixture
-def regular_session(http_session, base_url):
+def regular_session(base_url):
     """Session for regular user"""
+    session = requests.Session()
+    session.cookies.clear()
+    session.headers.update({
+        "User-Agent": "MyAutotestBot/1.0",
+        "Accept": "application/json"
+    })
     credentials = regular_user
-    session = login_user(http_session, base_url, credentials, get_csrf_token)
+    session = login_user(session, base_url, credentials, get_csrf_token)
     yield session
     session.get(f"{base_url}logout/")
+
+@pytest.fixture
+def test_user(base_url, unauthenticated_session, admin_session):
+    """Create test_user"""
+    url = f"{base_url}register/"
+    csrf_token = get_csrf_token(session=unauthenticated_session, url=url)
+    test_user_data = {
+        "username": "Fixture_test_user",
+        "password1": "Test_user_password_12345",
+        "password2": "Test_user_password_12345",
+        "email": "fixture_test_user@example.ru",
+        "csrfmiddlewaretoken": csrf_token
+    }
+    response_test_user = unauthenticated_session.post(url=url, data=test_user_data)
+    test_user_url = f"{base_url}{response_test_user.json().get('user_id')}"
+    test_user_id = re.search(r'/user/(\d+)/', test_user_url).group(1)
+    yield {
+        "test_user_url": test_user_url,
+        "test_user_data": test_user_data,
+        "test_user_id": test_user_id
+    }
+    object_delete(session=admin_session, url_object=test_user_url)
 
 @pytest.fixture
 def test_category(base_url, fake):
-    """Create category and return category id"""
+    """Create category and return category url, data, id"""
     url = f"{base_url}category/add_category/"
     session = requests.Session()
     admin_creditianals = admin_user
@@ -85,7 +120,7 @@ def test_category(base_url, fake):
 
 @pytest.fixture
 def test_news(base_url, test_category, fake):
-    """Create news and return news id"""
+    """Create news and return news url, data, id"""
     url = f"{base_url}news/add_news/"
     session = requests.Session()
     admin_creditianals = admin_user
