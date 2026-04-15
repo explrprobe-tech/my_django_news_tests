@@ -1,3 +1,4 @@
 __pycache__
 .venv
 venv_django_website_tests
+test.py
