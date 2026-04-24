@@ -1,0 +1,60 @@
+import pytest
+from playwright.sync_api import Page, expect
+
+def test_admin_can_login(page: Page, base_url: str):
+    """Admin user can log-in through UI"""
+    page.goto(base_url)
+    page.get_by_role("link", name="🔐 Войти").click()
+    page.locator("#id_username").fill("autotest_admin")
+    page.locator("#id_password").fill("autoadmin_123456789!")
+    page.get_by_role("button", name="Войти").click()
+    expect(page).to_have_url(base_url)
+    expect(page.get_by_text("Привет, autotest_admin!")).to_be_visible()
+    expect(page.get_by_role("button", name="🚪 Выйти")).to_be_visible()
+    expect(page.get_by_role("button", name="🔐 Войти")).not_to_be_visible()
+    expect(page.get_by_role("link", name="🔒 Секретная страница")).to_be_visible()
+    expect(page.get_by_text("(Администраторы)")).to_be_visible()
+    expect(page.get_by_role("link", name="✍️ Добавить новость")).to_be_visible()
+    expect(page.get_by_role("link", name="Категории")).to_be_visible()
+    expect(page.get_by_role("link", name="📰 Читать все новости")).to_be_visible()
+def test_editor_can_login(page: Page, base_url: str):
+    """Editor user can log-in through UI"""
+    page.goto(base_url)
+    page.get_by_role("link", name="Войти").click()
+    page.locator("#id_username").fill("autotest_editor")
+    page.locator("#id_password").fill("autoeditor_123456789!")
+    page.get_by_role("button", name="Войти").click()
+    expect(page).to_have_url(base_url)
+    expect(page.get_by_text("Привет, autotest_editor!")).to_be_visible()
+    expect(page.get_by_role("button", name="🚪 Выйти")).to_be_visible()
+    expect(page.get_by_role("button", name="🔐 Войти")).not_to_be_visible()
+    expect(page.get_by_role("link", name="🔒 Секретная страница")).to_be_visible()
+    expect(page.get_by_text("(Редакторы)")).to_be_visible()
+    expect(page.get_by_role("link", name="✍️ Добавить новость")).to_be_visible()
+    expect(page.get_by_role("link", name="Категории")).to_be_visible()
+    expect(page.get_by_role("link", name="📰 Читать все новости")).to_be_visible()
+def test_regular_can_login(page: Page, base_url: str):
+    """Regular user can log-in through UI"""
+    page.goto(base_url)
+    page.get_by_role("link", name="🔐 Войти").click()
+    page.locator("#id_username").fill("autotest_regular")
+    page.locator("#id_password").fill("autoregular_123456789!")
+    page.get_by_role("button", name="Войти").click()
+    expect(page).to_have_url(base_url)
+    expect(page.get_by_text("Привет, autotest_regular!")).to_be_visible()
+    expect(page.get_by_role("button", name="🚪 Выйти")).to_be_visible()
+    expect(page.get_by_role("button", name="🔐 Войти")).not_to_be_visible()
+    expect(page.get_by_role("link", name="🔒 Секретная страница")).not_to_be_visible()
+    expect(page.get_by_text("(Обычные пользователи)")).to_be_visible()
+    expect(page.get_by_role("link", name="✍️ Добавить новость")).not_to_be_visible()
+    expect(page.get_by_role("link", name="Категории")).to_be_visible()
+    expect(page.get_by_role("link", name="📰 Читать все новости")).to_be_visible()
+def test_undefined_cannot_logon(page: Page, base_url: str):
+    """Undefined user can't log-in through UI"""
+    page.goto(base_url)
+    page.get_by_role("link", name="🔐 Войти").click()
+    page.locator("#id_username").fill("autotest_undefined")
+    page.locator("#id_password").fill("autoundefined_123456789!")
+    page.get_by_role("button", name="Войти").click()
+    expect(page).to_have_url(f"{base_url}login/")
+    expect(page.locator(".alert.alert-error")).to_be_visible()

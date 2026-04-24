@@ -35,7 +35,7 @@ def test_delete_editor_user(test_user, editor_session):
     response_delete = editor_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token})
     assert response_delete.status_code == 403, "Editor user shouldn't have access to delete user"
 def test_delete_admin_user(test_user, admin_session):
-    """Editor user can't delete user"""
+    """Admin user can't delete user"""
     url_delete = f"{test_user["test_user_url"]}delete/"
     csrf_token = admin_session.cookies.get("csrftoken")
     response_delete = admin_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token}, allow_redirects=False)
