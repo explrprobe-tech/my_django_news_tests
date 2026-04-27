@@ -1,4 +1,6 @@
 import requests
+from bs4 import BeautifulSoup
+
 
 admin_user = {"username": "autotest_admin",
               "password": "autoadmin_123456789!"}
@@ -43,3 +45,35 @@ def get_csrf_token(session, url: str):
     import re
     match = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', html_content)
     return match.group(1) if match else None
+
+def get_object_id_by_name(session, base_url, model, name):
+    """Get user ID by searching in Django admin panel"""
+    object_path = {
+        "user": "auth/user",
+        "group": "auth/group",
+        "category": "news/category",
+        "news": "news/news"
+    }
+    import re
+    search_url = f"{base_url}admin/{object_path[model]}/?q={name}"
+    response = session.get(search_url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    search_link = soup.find('a', string=name)
+    match = re.search(r'/(\d+)/change/', search_link['href'])
+    if match:
+        return f"{model}/{match.group(1)}/"
+    return None
+
+class ResponseCapture:
+    "Captures specific fields from response"
+    def __init__(self):
+        self.data = {}
+
+    def capture(self, field):
+        """Returns a handler that captures a specific key"""
+        def handle_response(response):
+            self.data[field] = response.json().get(field)
+        return handle_response
+
+    def get(self, field):
+        return self.data.get(field)

@@ -24,6 +24,17 @@ def fake() -> Faker:
     return Faker()
 
 @pytest.fixture
+def user_data():
+    """Provides user data"""
+    test_user_data = {
+        "username": "test_autouser_ui",
+        "email": "test_autouser_ui@example.ru",
+        "password1": "autouserui_123456789!",
+        "password2": "autouserui_123456789!"
+    }
+    return test_user_data
+
+@pytest.fixture
 def unauthenticated_session():
     """Returns clean session (not logged in)"""
     session = requests.Session()
