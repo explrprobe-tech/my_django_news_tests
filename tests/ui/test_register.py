@@ -24,7 +24,6 @@ def test_registration_valid(page: Page, base_url: str, admin_session, user_data:
     url_object = f"{base_url}{user_path}"
     print(url_object)
     object_delete(session=admin_session, url_object=url_object)
-    
 def test_registration_invalid_username(page: Page, base_url: str, user_data: dict):
     """User can't register without username"""
     user_data["username"] = " "
@@ -36,7 +35,6 @@ def test_registration_invalid_username(page: Page, base_url: str, user_data: dic
     page.locator("#id_password2").fill(user_data["password2"])
     page.get_by_role("button", name="Зарегистрироваться").click()
     expect(page.locator("#id_username_error")).to_be_visible()
-
 def test_registration_username_and_password_similar(page: Page, base_url: str, user_data: dict):
     """User can't register with similar username and password"""
     user_data["password1"] = user_data["username"]
@@ -49,7 +47,6 @@ def test_registration_username_and_password_similar(page: Page, base_url: str, u
     page.locator("#id_password2").fill(user_data["password2"])
     page.get_by_role("button", name="Зарегистрироваться").click()
     expect(page.locator("#id_password2_error")).to_be_visible()
-
 def test_registration_passwords_not_match(page: Page, base_url: str, user_data: dict):
     """User can't register with similar username and password"""
     user_data["password1"] = "autouserui_123456789"
