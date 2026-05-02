@@ -48,16 +48,34 @@ jobs:
         cd django-website/mysite
         python manage.py runserver 0.0.0.0:8000 &
 
+    - name: ⏳ Wait for Django to be ready
+      run: |
+        for i in {1..30}; do
+          if curl -s http://127.0.0.1:8000/ > /dev/null; then
+            echo "✅ Django is ready!"
+            exit 0
+          fi
+          echo "Waiting for Django... ($i/30)"
+          sleep 2
+        done
+        echo "❌ Django failed to start"
+        exit 1
+
     - name: Install tests dependencies
       run: |
         cd tests
         pip install -r requirements-test.txt
 
+    - name: 🔽 Install Playwright browsers
+      run: |
+        cd tests
+        playwright install chromium
+
     - name: Run api tests
       run: |
         cd tests/tests
         pytest api/ -v
-
+        
     - name: Run ui tests
       run: |
         cd tests/tests
