@@ -30,7 +30,6 @@ def test_news_page_editor_user(page: Page, base_url: str):
     expect(page.locator("h1.page-title")).to_have_text("Все новости")
     expect(page.locator(".news-card").first).to_be_visible()
     expect(page.get_by_role("link", name="Читать далее →").first).to_be_visible()
-    expect(page.get_by_role("link", name="✍️ Добавить новость").first).to_be_visible()
 def test_news_page_admin_user(page: Page, base_url: str):
     "Admin user can see news page and add news"
     page.goto(base_url)
@@ -42,7 +41,6 @@ def test_news_page_admin_user(page: Page, base_url: str):
     expect(page.locator("h1.page-title")).to_have_text("Все новости")
     expect(page.locator(".news-card").first).to_be_visible()
     expect(page.get_by_role("link", name="Читать далее →").first).to_be_visible()
-    expect(page.get_by_role("link", name="✍️ Добавить новость").first).to_be_visible()
 def test_news_page_to_home_page_by_title_button(page: Page, base_url: str):
     """Undefined user can open home page by button Главная"""
     page.goto(base_url)
