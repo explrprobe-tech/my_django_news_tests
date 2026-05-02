@@ -53,7 +53,12 @@ jobs:
         cd tests
         pip install -r requirements-test.txt
 
-    - name: Run tests
+    - name: Run api tests
       run: |
         cd tests/tests
         pytest api/ -v
+
+    - name: Run ui tests
+      run: |
+        cd tests/tests
+        pytest ui/ -v

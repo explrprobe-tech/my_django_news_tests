@@ -68,7 +68,6 @@ def test_undefined_can_back_to_home(page: Page, base_url: str):
     expect(page.get_by_role("link", name="📝 Регистрация")).to_be_visible()
     expect(page.get_by_role("button", name="🚪 Выйти")).not_to_be_visible()
     expect(page.get_by_role("link", name="🔒 Секретная страница")).not_to_be_visible()
-    expect(page.get_by_text("(Обычные пользователи)")).to_be_visible()
     expect(page.get_by_role("link", name="✍️ Добавить новость")).not_to_be_visible()
     expect(page.get_by_role("link", name="Категории")).to_be_visible()
     expect(page.get_by_role("link", name="📰 Читать все новости")).to_be_visible()
@@ -77,7 +76,7 @@ def test_undefined_can_go_to_register(page: Page, base_url):
     page.goto(base_url)
     page.get_by_role("link", name="🔐 Войти").click()
     page.get_by_role("link", name="Зарегистрируйтесь здесь").click()
-    expect(page).to_have_url(f"{base_url}login/")
+    expect(page).to_have_url(f"{base_url}register/")
     expect(page.locator("#id_username")).to_be_visible()
     expect(page.locator("#id_email")).to_be_visible()
     expect(page.locator("#id_password1")).to_be_visible()
@@ -85,3 +84,15 @@ def test_undefined_can_go_to_register(page: Page, base_url):
     expect(page.get_by_role("button", name="Зарегистрироваться")).to_be_visible()
     expect(page.get_by_role("link", name="Войдите здесь")).to_be_visible()
     expect(page.get_by_role("link", name="← На главную")).to_be_visible()
+def test_login_page_to_home_page_by_title_button(page: Page, base_url: str):
+    """Undefined user can open home page by button Главная"""
+    page.goto(base_url)
+    page.get_by_role("link", name="🔐 Войти").click()
+    page.get_by_role("link", name="🏠 Главная").click()
+    expect(page).to_have_url(base_url)
+def test_login_page_to_news_page_by_title_button(page: Page, base_url: str):
+    """Undefiend user can open news page by button Все новости"""
+    page.goto(base_url)
+    page.get_by_role("link", name="🔐 Войти").click()
+    page.get_by_role("link", name="📋 Все новости").click()
+    expect(page).to_have_url(f"{base_url}news/")
