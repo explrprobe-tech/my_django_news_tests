@@ -56,8 +56,7 @@ jobs:
     - name: 🔽 Install Playwright browsers  # ← ADD THIS STEP!
       run: |
         cd tests
-        playwright install
-        playwright install-deps  # Optional: install system dependencies
+        playwright install chromium
 
     - name: Run api tests
       run: |
