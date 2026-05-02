@@ -53,7 +53,18 @@ jobs:
         cd tests
         pip install -r requirements-test.txt
 
-    - name: Run tests
+    - name: 🔽 Install Playwright browsers  # ← ADD THIS STEP!
+      run: |
+        cd tests
+        playwright install
+        playwright install-deps  # Optional: install system dependencies
+
+    - name: Run api tests
       run: |
         cd tests/tests
         pytest api/ -v
+        
+    - name: Run ui tests
+      run: |
+        cd tests/tests
+        pytest ui/ -v
