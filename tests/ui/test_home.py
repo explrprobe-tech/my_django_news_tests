@@ -18,3 +18,9 @@ def test_home_page_to_news_page_by_title_button(page: Page, base_url: str):
     page.goto(base_url)
     page.get_by_role("link", name="📋 Все новости").click()
     expect(page).to_have_url(f"{base_url}news/")
+def test_home_page_to_news_details_page(page: Page, base_url: str):
+    """Undefined user can open news details page from home page"""
+    import re
+    page.goto(base_url)
+    page.get_by_role("link", name="Читать далее →").first.click()
+    expect(page).to_have_url(re.compile(rf"{base_url}news/\d+/"))
