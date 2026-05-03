@@ -53,3 +53,15 @@ def test_categories_page_admin_user(page: Page, base_url: str):
     expect(page.locator(".news-card:first-child")).to_be_visible()
     expect(page.locator(".edit-news-btn").first).to_be_visible()
     expect(page.get_by_role("link", name="✍️ Добавить категорию")).to_be_visible()
+def test_category_page_to_home_page_by_title_button(page: Page, base_url: str):
+    """Undefined user can open home page by button Главная"""
+    page.goto(base_url)
+    page.get_by_role("link", name="Категории").click()
+    page.get_by_role("link", name="🏠 Главная").click()
+    expect(page).to_have_url(base_url)
+def test_category_page_to_news_page_by_title_button(page: Page, base_url: str):
+    """Undefiend user can open news page by button Все новости"""
+    page.goto(base_url)
+    page.get_by_role("link", name="Категории").click()
+    page.get_by_role("link", name="📋 Все новости").click()
+    expect(page).to_have_url(f"{base_url}news/")

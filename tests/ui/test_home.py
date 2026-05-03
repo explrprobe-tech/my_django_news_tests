@@ -13,3 +13,8 @@ def test_home_page_undefined_user(page: Page, base_url: str):
     expect(page.locator(".news-grid .news-card:nth-child(1)")).to_be_visible()
     expect(page.locator(".news-grid .news-card:nth-child(2)")).to_be_visible()
     expect(page.locator(".news-grid .news-card:nth-child(3)")).to_be_visible()
+def test_home_page_to_news_page_by_title_button(page: Page, base_url: str):
+    """Undefiend user can open news page by button Все новости"""
+    page.goto(base_url)
+    page.get_by_role("link", name="📋 Все новости").click()
+    expect(page).to_have_url(f"{base_url}news/")

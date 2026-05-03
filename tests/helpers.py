@@ -47,7 +47,8 @@ def get_csrf_token(session, url: str):
     return match.group(1) if match else None
 
 def get_object_id_by_name(session, base_url, model, name):
-    """Get user ID by searching in Django admin panel"""
+    """Get user ID by searching in Django admin panel
+       Session should be admin"""
     object_path = {
         "user": "auth/user",
         "group": "auth/group",

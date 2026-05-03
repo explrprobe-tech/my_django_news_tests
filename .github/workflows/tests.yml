@@ -66,7 +66,7 @@ jobs:
         cd tests
         pip install -r requirements-test.txt
 
-    - name: 🔽 Install Playwright browsers  # ← ADD THIS STEP!
+    - name: 🔽 Install Playwright browsers
       run: |
         cd tests
         playwright install chromium
