@@ -12,7 +12,7 @@ def test_registration_valid(page: Page, base_url: str, admin_session, user_data:
     page.locator("#id_password2").fill(user_data["password2"])
     page.get_by_role("button", name="Зарегистрироваться").click()
     expect(page).to_have_url(base_url)
-    expect(page.get_by_text("Привет, test_autouser_ui!")).to_be_visible()
+    expect(page.get_by_text("👋 Привет, test_autouser_ui!")).to_be_visible()
     expect(page.get_by_role("button", name="🚪 Выйти")).to_be_visible()
     expect(page.get_by_role("link", name="🔐 Войти")).not_to_be_visible()
     expect(page.get_by_role("link", name="🔒 Секретная страница")).not_to_be_visible()
