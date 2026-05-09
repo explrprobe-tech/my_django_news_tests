@@ -154,10 +154,20 @@ def test_news(base_url, test_category, fake):
     }
     session.post(url=f"{response_test_news.url}delete/", data={"csrfmiddlewaretoken": csrf_token})
 
+
 @pytest.fixture
 def db_cleanup():
-    """Fixture that ensures database is clean"""
-    yield
+    """Fixture that deletes objects by url"""
+    created_objects = []
+    def cleanup(url_object):
+        created_objects.append(url_object)
+    yield cleanup
+    session = requests.Session()
+    admin_creditianals = admin_user
+    login_user(session, base_url, admin_creditianals, get_csrf_token)
+    for url in created_objects:
+        csrf_token = get_csrf_token(session=session, url=url)
+        session.post(url=f"{url}delete/", data={"csrfmiddlewaretoken": csrf_token})
 
 def pytest_configure(config):
     """Function to register custom markers"""

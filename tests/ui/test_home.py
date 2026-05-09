@@ -24,3 +24,12 @@ def test_home_page_to_news_details_page(page: Page, base_url: str):
     page.goto(base_url)
     page.get_by_role("link", name="Читать далее →").first.click()
     expect(page).to_have_url(re.compile(rf"{base_url}news/\d+/"))
+def test_home_page_to_news_add_page(page: Page, base_url: str):
+    """Editor user can open news add page from home page"""
+    page.goto(base_url)
+    page.get_by_role("link", name="🔐 Войти").click()
+    page.locator("#id_username").fill("autotest_editor")
+    page.locator("#id_password").fill("autoeditor_123456789!")
+    page.get_by_role("button", name="Войти").click()
+    page.get_by_role("link", name="✍️ Добавить новость").click()
+    expect(page).to_have_url(f"{base_url}news/add_news/")
