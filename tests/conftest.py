@@ -2,7 +2,7 @@ import pytest
 import requests
 from typing import Dict, Any, Generator
 from faker import Faker
-from helpers import admin_user, editor_user, regular_user, login_user, get_csrf_token, object_delete
+from helpers import login_user, get_csrf_token, object_delete, FILE_PATH
 import re
 
 
@@ -22,6 +22,46 @@ def fake() -> Faker:
     """Provides a Faker instance for generating fake data.
        Create fresh for each test that needs it."""
     return Faker()
+
+@pytest.fixture
+def admin_user():
+    """Admin autotest data"""
+    test_admin_user = {
+        "username": "autotest_admin",
+        "password": "autoadmin_123456789!"
+        }
+    return test_admin_user
+
+@pytest.fixture
+def editor_user():
+    """Editor autotest data"""
+    test_editor_user = {
+        "username": "autotest_editor",
+        "password": "autoeditor_123456789!"
+        }
+    return test_editor_user
+
+@pytest.fixture
+def regular_user():
+    """Regular autotest data"""
+    test_regular_data = {
+        "username": "autotest_regular",
+        "password": "autoregular_123456789!"
+        }
+    return test_regular_data
+
+@pytest.fixture
+def news_data():
+    """News data for UI"""
+    test_news_data = {
+        "title": "Title for test news",
+        "content": "Content for test news",
+        "is_published": True,
+        "photo": FILE_PATH / "files_for_tests" / "picture_or_photo.jpg",
+        "short_description": "Short description for test news",
+        "tags": "test_tag_one, test_tag_two"
+        }
+    return test_news_data
 
 @pytest.fixture
 def user_data():
@@ -46,7 +86,7 @@ def unauthenticated_session():
     return session
 
 @pytest.fixture
-def admin_session(base_url):
+def admin_session(base_url, admin_user):
     """Session for admin user"""
     session = requests.Session()
     session.headers.update({
@@ -59,7 +99,7 @@ def admin_session(base_url):
     session.get(f"{base_url}logout/")
 
 @pytest.fixture
-def editor_session(base_url):
+def editor_session(base_url, editor_user):
     """Session for editor user"""
     session = requests.Session()
     session.cookies.clear()
@@ -73,7 +113,7 @@ def editor_session(base_url):
     session.get(f"{base_url}logout/")
 
 @pytest.fixture
-def regular_session(base_url):
+def regular_session(base_url, regular_user):
     """Session for regular user"""
     session = requests.Session()
     session.cookies.clear()
@@ -109,7 +149,7 @@ def test_user(base_url, unauthenticated_session, admin_session):
     object_delete(session=admin_session, url_object=test_user_url)
 
 @pytest.fixture
-def test_category(base_url, fake):
+def test_category(base_url, fake, admin_user):
     """Create category and return category url, data, id"""
     url = f"{base_url}category/add_category/"
     session = requests.Session()
@@ -130,7 +170,7 @@ def test_category(base_url, fake):
     session.post(url=f"{response_test_category.url}delete/", data={"csrfmiddlewaretoken": csrf_token})
 
 @pytest.fixture
-def test_news(base_url, test_category, fake):
+def test_news(base_url, test_category, fake, admin_user):
     """Create news and return news url, data, id"""
     url = f"{base_url}news/add_news/"
     session = requests.Session()
@@ -156,7 +196,7 @@ def test_news(base_url, test_category, fake):
 
 
 @pytest.fixture
-def db_cleanup():
+def db_cleanup(admin_user):
     """Fixture that deletes objects by url"""
     created_objects = []
     def cleanup(url_object):

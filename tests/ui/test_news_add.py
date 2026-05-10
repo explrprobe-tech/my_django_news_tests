@@ -1,8 +1,8 @@
 import pytest
 from playwright.sync_api import Page, expect
-from helpers import admin_user, editor_user, news_data, object_delete
+from helpers import object_delete
 
-def test_news_add_editor_user(page: Page, base_url: str):
+def test_news_add_editor_user(page: Page, base_url: str, editor_user):
     """Editor user can open add news page"""
     page.goto(base_url)
     page.get_by_role("link", name="🔐 Войти").click()
@@ -31,7 +31,7 @@ def test_news_add_editor_user(page: Page, base_url: str):
     expect(page.locator(".hint-text").nth(5)).to_contain_text("Теги помогут читателям находить похожие новости")
     expect(page.get_by_role("button", name="✨ Опубликовать новость")).to_be_visible()
     expect(page.get_by_role("link", name="❌ Отмена")).to_be_visible()
-def test_news_add_admin_user(page: Page, base_url: str):
+def test_news_add_admin_user(page: Page, base_url: str, admin_user):
     """Admin user can open add news page"""
     page.goto(base_url)
     page.get_by_role("link", name="🔐 Войти").click()
@@ -60,7 +60,7 @@ def test_news_add_admin_user(page: Page, base_url: str):
     expect(page.locator(".hint-text").nth(5)).to_contain_text("Теги помогут читателям находить похожие новости")
     expect(page.get_by_role("button", name="✨ Опубликовать новость")).to_be_visible()
     expect(page.get_by_role("link", name="❌ Отмена")).to_be_visible()
-def test_news_add_create_news(page: Page, base_url: str, test_category, admin_session):
+def test_news_add_create_news(page: Page, base_url: str, test_category, admin_session, news_data):
     """Editor user can create news with news add page"""
     import re
     page.goto(base_url)
@@ -80,7 +80,7 @@ def test_news_add_create_news(page: Page, base_url: str, test_category, admin_se
     expect(page).to_have_url(re.compile(rf"{base_url}news/\d+/"))
     url_object = page.url
     object_delete(session=admin_session, url_object=url_object)
-def test_news_add_to_home_page(page: Page, base_url: str):
+def test_news_add_to_home_page(page: Page, base_url: str, editor_user):
     """Editor user can returb back to home page from news add page"""
     page.goto(base_url)
     page.get_by_role("link", name="🔐 Войти").click()
@@ -91,7 +91,7 @@ def test_news_add_to_home_page(page: Page, base_url: str):
     page.get_by_role("link", name="✍️ Добавить новость").click()
     page.get_by_role("link", name="❌ Отмена").click()
     expect(page).to_have_url(base_url)
-def test_news_add_empty_fields(page: Page, base_url: str):
+def test_news_add_empty_fields(page: Page, base_url: str, editor_user):
     """Editor user can't create news with empty fields"""
     page.goto(base_url)
     page.get_by_role("link", name="🔐 Войти").click()
@@ -102,7 +102,7 @@ def test_news_add_empty_fields(page: Page, base_url: str):
     page.get_by_role("link", name="✍️ Добавить новость").click()
     page.get_by_role("button", name="✨ Опубликовать новость").click()
     expect(page).to_have_url(f"{base_url}news/add_news/")
-def test_news_add_invalid_fields(page: Page, base_url: str):
+def test_news_add_invalid_fields(page: Page, base_url: str, editor_user, news_data):
     """Editor user can't create news with incorrect fields"""
     page.goto(base_url)
     page.get_by_role("link", name="🔐 Войти").click()
