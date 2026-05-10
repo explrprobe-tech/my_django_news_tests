@@ -78,8 +78,8 @@ def test_news_add_create_news(page: Page, base_url: str, test_category, admin_se
     page.locator("#id_tags").fill(news_data["tags"])
     page.get_by_role("button", name="✨ Опубликовать новость").click()
     expect(page).to_have_url(re.compile(rf"{base_url}news/\d+/"))
-    url_object = page.url
-    object_delete(session=admin_session, url_object=url_object)
+    object_url = page.url
+    object_delete(session=admin_session, url_object=object_url)
 def test_news_add_to_home_page(page: Page, base_url: str, editor_user):
     """Editor user can returb back to home page from news add page"""
     page.goto(base_url)
