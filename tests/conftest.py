@@ -64,6 +64,13 @@ def news_data():
     return test_news_data
 
 @pytest.fixture
+def category_data():
+    test_category_data = {
+        "title": "Title for test category"
+    }
+    return test_category_data
+
+@pytest.fixture
 def user_data():
     """Provides user data"""
     test_user_data = {
