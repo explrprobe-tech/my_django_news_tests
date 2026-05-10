@@ -1,4 +1,4 @@
-from helpers import object_delete, get_csrf_token, admin_user, editor_user, regular_user
+from helpers import object_delete, get_csrf_token
 
 def test_register(base_url, unauthenticated_session, admin_session):
     """User can register in website"""
@@ -41,7 +41,7 @@ def test_delete_admin_user(test_user, admin_session):
     response_delete = admin_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token}, allow_redirects=False)
     assert response_delete.status_code == 200, "Admin user should have access to delete user"
 
-def test_login_regular_user(base_url, unauthenticated_session):
+def test_login_regular_user(base_url, unauthenticated_session, regular_user):
     """Regular user can log-in"""
     url_login = f"{base_url}login/"
     csrf_token = get_csrf_token(session=unauthenticated_session, url=url_login)
@@ -49,7 +49,7 @@ def test_login_regular_user(base_url, unauthenticated_session):
     response_login = unauthenticated_session.post(url=url_login, data=regular_user, allow_redirects=False)
     assert response_login.status_code == 302, "Regular user should have access to log-in"
     assert response_login.headers.get('Location') == '/', "Regular user wasn't redirected"
-def test_login_editor_user(base_url, unauthenticated_session):
+def test_login_editor_user(base_url, unauthenticated_session, editor_user):
     """Editor user can log-in"""
     url_login = f"{base_url}login/"
     csrf_token = get_csrf_token(session=unauthenticated_session, url=url_login)
@@ -57,7 +57,7 @@ def test_login_editor_user(base_url, unauthenticated_session):
     response_login = unauthenticated_session.post(url=url_login, data=editor_user, allow_redirects=False)
     assert response_login.status_code == 302, "Editor user should have access to log-in"
     assert response_login.headers.get('Location') == '/', "Editor user wasn't redirected"
-def test_login_admin_user(base_url, unauthenticated_session):
+def test_login_admin_user(base_url, unauthenticated_session, admin_user):
     """Admin user can log-in"""
     url_login = f"{base_url}login/"
     csrf_token = get_csrf_token(session=unauthenticated_session, url=url_login)

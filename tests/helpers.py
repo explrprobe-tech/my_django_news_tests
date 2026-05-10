@@ -2,27 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
 
-file_path = Path(__file__).parent
-admin_user = {
-    "username": "autotest_admin",
-    "password": "autoadmin_123456789!"
-}
-editor_user = {
-    "username": "autotest_editor",
-    "password": "autoeditor_123456789!"
-    }
-regular_user = {
-    "username": "autotest_regular",
-    "password": "autoregular_123456789!"
-    }
-news_data = {
-    "title": "Title for test news",
-    "content": "Content for test news",
-    "is_published": True,
-    "photo": file_path / "files_for_tests" / "picture_or_photo.jpg",
-    "short_description": "Short description for test news",
-    "tags": "test_tag_one, test_tag_two"
-}
+FILE_PATH = Path(__file__).parent
 
 def login_user(session, base_url, credentials, csrf_extract):
     """Helper to login any user"""
