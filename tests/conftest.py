@@ -192,7 +192,10 @@ def test_news(base_url, test_category, fake, admin_user):
         "is_published": True,
         "csrfmiddlewaretoken": csrf_token
     }
-    response_test_news = session.post(url=url, data=test_news_data)
+    photo_path = FILE_PATH / "files_for_tests" / "picture_or_photo.jpg"
+    with open(photo_path, 'rb') as photo:
+        file = {"photo": photo}
+        response_test_news = session.post(url=url, data=test_news_data, files=file)
     test_news_id = re.search(r'/news/(\d+)/', response_test_news.url).group(1)
     yield {
         "test_news_url": response_test_news.url,
