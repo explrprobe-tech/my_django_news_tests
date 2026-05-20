@@ -1,23 +1,20 @@
-name: Pytest CI/CD
+name: API & UI Tests
 
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:
-    inputs:
-      test-type:
-        description: 'Which tests to run?'
-        required: true
-        default: 'load'
-        type: choice
-        options:
-          - 'load'
-          - 'all'
+    paths:
+      - '.github/workflows/api-ui-tests.yml'
+      - 'tests/api/**'      
+      - 'tests/ui/**'       
+      - 'tests/conftest.py' 
+      - 'tests/helpers.py'
+      - 'tests/test_data.py' 
+  workflow_dispatch: 
 
 jobs:
   tests_api_ui:
     runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_dispatch' || github.event.inputs.test-type == 'all'
 
     
     steps:
