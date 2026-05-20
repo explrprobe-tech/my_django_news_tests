@@ -5,7 +5,8 @@ on:
     branches: [ main, master ]
     paths:
       - '.github/workflows/load-tests.yml'
-      - 'tests/load_tests/*'
+      - 'tests/load_tests/**'
+      - 'tests/files_for_tests/**'
   workflow_dispatch:
     inputs:
       test-type:
@@ -20,7 +21,7 @@ on:
 jobs:
   smoke_test:
     runs-on: 'ubuntu-latest'
-    if: github.event.inputs.test-type == 'all' || github.event.inputs.test-type == 'smoke_test'
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.test-type == 'all' || github.event.inputs.test-type == 'smoke_test'
 
 
     steps:
