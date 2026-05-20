@@ -3,13 +3,21 @@ name: Pytest CI/CD
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch: 
+  workflow_dispatch:
+    inputs:
+      test-type:
+        description: 'Which tests to run?'
+        required: true
+        default: 'load'
+        type: choice
+        options:
+          - 'load'
+          - 'all'
 
 jobs:
   tests_api_ui:
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.test-type == 'all'
 
     
     steps:
@@ -84,7 +92,7 @@ jobs:
   
   load_tests:
     runs-on: ubuntu-latest
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event.inputs.test-type == 'load' || github.event.inputs.test-type == 'all'
 
     steps:
       - name: Checkout Django Website
