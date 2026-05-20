@@ -135,7 +135,7 @@ jobs:
 
       - name: Run smoke load test
         run: |
-          cd tests
+          cd tests/tests
           k6 run load_tests/smoke_test.js
         env:
           BASE_URL: http://localhost:8000
