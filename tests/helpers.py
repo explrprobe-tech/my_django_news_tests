@@ -73,3 +73,42 @@ class ResponseCapture:
 
     def get(self, field):
         return self.data.get(field)
+    
+class ObjectHelper:
+    """Helps to work with objects"""
+    
+    OBJECT_PATHS = {
+        "user": "auth/user",
+        "group": "auth/group",
+        "category": "news/category",
+        "news": "news/news"
+    }
+
+    def __init__(self, base_url, session):
+        self.base_url = base_url
+        self.session = session
+        
+    def get_object_id_by_name(self, model, name):
+        """Get user ID by searching in Django admin panel
+        Session should be admin"""
+        object_path = self.OBJECT_PATHS[model]
+        import re
+        search_url = f"{self.base_url}admin/{object_path}/?q={name}"
+        response = self.session.get(search_url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        search_link = soup.find('a', string=name)
+        match = re.search(r'/(\d+)/change/', search_link['href'])
+        if match:
+            return f"{model}/{match.group(1)}/"
+        return None
+    
+    def object_delete(self, id_object):
+        """Uses delete method to delete object by url and return response"""
+        url_delete_method = f"{self.base_url}{id_object}delete/"
+        csrftoken = self.session.cookies.get('csrftoken')
+        response = self.session.post(url=url_delete_method, 
+                                    data={
+                                            'csrfmiddlewaretoken': csrftoken
+                                        }
+                                    )
+        return response

@@ -2,9 +2,12 @@ import pytest
 import requests
 from typing import Dict, Any, Generator
 from faker import Faker
-from helpers import login_user, get_csrf_token, object_delete, FILE_PATH
+from helpers import login_user, get_csrf_token, object_delete, FILE_PATH, ObjectHelper
 import re
-
+from api.api_objects.user_api import AuthApi, UserApi
+from api.api_objects.category_api import CategoryApi
+from api.api_objects.news_api import NewsApi
+from api.api_objects.secret_api import SecretApi
 
 
 @pytest.fixture(scope="session")
@@ -22,6 +25,15 @@ def fake() -> Faker:
     """Provides a Faker instance for generating fake data.
        Create fresh for each test that needs it."""
     return Faker()
+
+@pytest.fixture
+def undefined_user():
+    """Undefined autotest data"""
+    test_undefined_user = {
+        "username": "autotest_undefined",
+        "password": "autoundefined_123456789!"
+        }
+    return test_undefined_user
 
 @pytest.fixture
 def admin_user():
@@ -148,10 +160,12 @@ def test_user(base_url, unauthenticated_session, admin_session):
     response_test_user = unauthenticated_session.post(url=url, data=test_user_data)
     test_user_url = f"{base_url}{response_test_user.json().get('user_id')}"
     test_user_id = re.search(r'/user/(\d+)/', test_user_url).group(1)
+    test_user_delete_endpoint = f"/user/{test_user_id}/delete/"
     yield {
         "test_user_url": test_user_url,
         "test_user_data": test_user_data,
-        "test_user_id": test_user_id
+        "test_user_id": test_user_id,
+        "test_user_delete_endpoint": test_user_delete_endpoint
     }
     object_delete(session=admin_session, url_object=test_user_url)
 
@@ -218,6 +232,37 @@ def db_cleanup(admin_user):
     for url in created_objects:
         csrf_token = get_csrf_token(session=session, url=url)
         session.post(url=f"{url}delete/", data={"csrfmiddlewaretoken": csrf_token})
+
+@pytest.fixture
+def auth_api(base_url, unauthenticated_session):
+    """Create AuthApi object for with auth methods"""
+    return AuthApi(base_url, unauthenticated_session)
+
+@pytest.fixture
+def object_helper(base_url, admin_session):
+    """Create ObjectHelper object with helper methods"""
+    return ObjectHelper(base_url, admin_session)
+
+@pytest.fixture
+def user_api(base_url):
+    """Create UserApi object with user methods"""
+    return UserApi(base_url)
+
+@pytest.fixture
+def category_api(base_url):
+    """Create CategoryApi object with category methods"""
+    return CategoryApi(base_url)
+
+@pytest.fixture
+def news_api(base_url):
+    """Create NewsApi object with news methods"""
+    return NewsApi(base_url)
+
+@pytest.fixture
+def secret_api(base_url):
+    """Create SecretApi object with secret page methods"""
+    return SecretApi(base_url)
+
 
 def pytest_configure(config):
     """Function to register custom markers"""
