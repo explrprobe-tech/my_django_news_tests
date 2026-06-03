@@ -1,98 +1,58 @@
-from helpers import object_delete, get_csrf_token
+import pytest
 
-def test_register(base_url, unauthenticated_session, admin_session):
+def test_register(auth_api, object_helper):
     """User can register in website"""
-    url_register = f"{base_url}register/"
     data_register = {
         'username': 'Test_user',
-        'password1': 'Test_user_password_123',
-        'password2': 'Test_user_password_123',
-        'email': 'test_user@example.ru',
-        'csrfmiddlewaretoken': get_csrf_token(session=unauthenticated_session, url=url_register)
+        'password': 'Test_user_password_123',
+        'email': 'test_user@example.ru'
     }
-    response_register = unauthenticated_session.post(url=url_register, data=data_register)
+    response_register = auth_api.register(data_register["username"], data_register["password"], data_register["email"])
     assert response_register.status_code == 200, "Unathenticated user can't register on website"
-    url_delete = f"{base_url}{response_register.json().get('user_id')}"
-    response_delete = object_delete(session=admin_session, url_object=url_delete)
-    assert response_delete.status_code == 200, "User wasn't deleted"
+    id_object = object_helper.get_object_id_by_name("user", data_register["username"])
+    object_delete = object_helper.object_delete(id_object)
+    assert object_delete.status_code == 200, "User wasn't deleted"
 
-def test_delete_unathenticated_user(test_user, unauthenticated_session):
-    """Unathenticated user can't delete user"""
-    url_delete = f"{test_user["test_user_url"]}delete/"
-    csrf_token = unauthenticated_session.cookies.get("csrftoken")
-    response_delete = unauthenticated_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token})
-    assert response_delete.status_code == 403, "Unathenticated user shouldn't have access to delete user"
-def test_delete_regular_user(test_user, regular_session):
-    """Regular user can't delete user"""
-    url_delete = f"{test_user["test_user_url"]}delete/"
-    csrf_token = regular_session.cookies.get("csrftoken")
-    response_delete = regular_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token})
-    assert response_delete.status_code == 403, "Regular user shouldn't have access to delete user"
-def test_delete_editor_user(test_user, editor_session):
-    """Editor user can't delete user"""
-    url_delete = f"{test_user["test_user_url"]}delete/"
-    csrf_token = editor_session.cookies.get("csrftoken")
-    response_delete = editor_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token})
-    assert response_delete.status_code == 403, "Editor user shouldn't have access to delete user"
-def test_delete_admin_user(test_user, admin_session):
-    """Admin user can't delete user"""
-    url_delete = f"{test_user["test_user_url"]}delete/"
-    csrf_token = admin_session.cookies.get("csrftoken")
-    response_delete = admin_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token}, allow_redirects=False)
-    assert response_delete.status_code == 200, "Admin user should have access to delete user"
+@pytest.mark.parametrize("session_name, expected_status, allow_redirects", [
+    ("unauthenticated_session", 403, True),
+    ("regular_session", 403, True),
+    ("editor_session", 403, True),
+    ("admin_session", 200, False)
+])
+def test_delete_user_permision(request, test_user, user_api, session_name, expected_status, allow_redirects):
+    """Only admin has permission to delete users"""
+    session = request.getfixturevalue(session_name)
+    user_api.set_session(session)
+    response_delete = user_api.delete_user(test_user["test_user_delete_endpoint"], allow_redirects=allow_redirects)
+    assert response_delete.status_code == expected_status
 
-def test_login_regular_user(base_url, unauthenticated_session, regular_user):
-    """Regular user can log-in"""
-    url_login = f"{base_url}login/"
-    csrf_token = get_csrf_token(session=unauthenticated_session, url=url_login)
-    regular_user['csrfmiddlewaretoken'] = csrf_token
-    response_login = unauthenticated_session.post(url=url_login, data=regular_user, allow_redirects=False)
-    assert response_login.status_code == 302, "Regular user should have access to log-in"
-    assert response_login.headers.get('Location') == '/', "Regular user wasn't redirected"
-def test_login_editor_user(base_url, unauthenticated_session, editor_user):
-    """Editor user can log-in"""
-    url_login = f"{base_url}login/"
-    csrf_token = get_csrf_token(session=unauthenticated_session, url=url_login)
-    editor_user['csrfmiddlewaretoken'] = csrf_token
-    response_login = unauthenticated_session.post(url=url_login, data=editor_user, allow_redirects=False)
-    assert response_login.status_code == 302, "Editor user should have access to log-in"
-    assert response_login.headers.get('Location') == '/', "Editor user wasn't redirected"
-def test_login_admin_user(base_url, unauthenticated_session, admin_user):
-    """Admin user can log-in"""
-    url_login = f"{base_url}login/"
-    csrf_token = get_csrf_token(session=unauthenticated_session, url=url_login)
-    admin_user['csrfmiddlewaretoken'] = csrf_token
-    response_login = unauthenticated_session.post(url=url_login, data=admin_user, allow_redirects=False)
-    assert response_login.status_code == 302, "Admin user should have access to log-in"
-    assert response_login.headers.get('Location') == '/', "Admin user wasn't redirected"
-def test_login_undefined_user(base_url, unauthenticated_session):
-    """Undefined user can't log-in"""
-    url_login = f"{base_url}login/"
-    csrf_token = get_csrf_token(session=unauthenticated_session, url=url_login)
-    undefined_user = {
-        "username": "Test",
-        "password": "Test_123",
-        "csrfmiddlewaretoken": csrf_token
-    }
-    response_login = unauthenticated_session.post(url=url_login, data=undefined_user)
-    assert response_login.status_code == 200, "Undefined user shouldn't have access to log-in"
-    assert 'Неверное имя пользователя или пароль. Попробуйте снова.' in response_login.text, "Undefined should get alert-error"
+@pytest.mark.parametrize("session_name, expected_status, user_fixture", [
+    ("unauthenticated_session", 200, "undefined_user"),
+    ("regular_session", 302, "regular_user"),
+    ("editor_session", 302, "editor_user"),
+    ("admin_session", 302, "admin_user")])
+def test_login_user(request, auth_api, session_name, expected_status, user_fixture, ):
+    """Only user with valid data can log-in"""
+    session = request.getfixturevalue(session_name)
+    auth_api.set_session(session)
+    user_data = request.getfixturevalue(user_fixture)
+    username = user_data["username"]
+    password = user_data["password"]
+    response_login = auth_api.login(username, password)
+    assert response_login.status_code == expected_status, f"{username} user should have access to log-in"
+    if expected_status == 200:
+        assert 'Неверное имя пользователя или пароль. Попробуйте снова.' in response_login.text, f"{username} should get alert-error"
 
-def test_logout_regular_user(base_url, regular_session):
-    """Regular user can log-out"""
-    url_logout = f"{base_url}logout/"
-    response_logout = regular_session.get(url=url_logout, allow_redirects=False)
-    assert response_logout.status_code == 302, "Regular user should have access to log-out"
-    assert response_logout.headers.get('Location') == '/', 'Regular user should be redirected to home page after log-out'
-def test_logout_editor_user(base_url, editor_session):
-    """Editor user can log-out"""
-    url_logout = f"{base_url}logout/"
-    response_logout = editor_session.get(url=url_logout, allow_redirects=False)
-    assert response_logout.status_code == 302, "Editor user should have access to log-out"
-    assert response_logout.headers.get('Location') == '/', 'Editor user should be redirected to home page after log-out'
-def test_logout_admin_user(base_url, admin_session):
-    """Admin user can log-out"""
-    url_logout = f"{base_url}logout/"
-    response_logout = admin_session.get(url=url_logout, allow_redirects=False)
-    assert response_logout.status_code == 302, "Admin user should have access to log-out"
-    assert response_logout.headers.get('Location') == '/', 'Admin user should be redirected to home page after log-out'
+@pytest.mark.parametrize("session_name", [
+    "unauthenticated_session",
+    "regular_session",
+    "editor_session",
+    "admin_session"
+])
+def test_logout_user(request, user_api, session_name):
+    """Any user log-out"""
+    session = request.getfixturevalue(session_name)
+    user_api.set_session(session)
+    response_logout = user_api.logout(allow_redirects=False)
+    assert response_logout.status_code == 302, f"{session_name} user should have access to log-out"
+    assert response_logout.headers.get('Location') == '/', f'{session_name} user should be redirected to home page after log-out'

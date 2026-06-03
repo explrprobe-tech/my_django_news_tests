@@ -1,69 +1,60 @@
 import pytest
 from helpers import get_csrf_token
 
-def test_categories_unauthenticated_user_get(unauthenticated_session, base_url, test_category):
-    """Unauthorized user can see categories"""
-    response_categories_list = unauthenticated_session.get(url=f"{base_url}category/")
-    assert response_categories_list.status_code == 200, "Unauthenticated user should have access to categories"
-    assert test_category["test_category_data"]["title"] in response_categories_list.text, "Created category is not on category page"
-    response_category = unauthenticated_session.get(url=test_category["test_category_url"])
-    assert response_category.status_code == 200, "Unauthenticated user should have access to category"
-    assert test_category["test_category_data"]["title"] in response_categories_list.text, "Created category is not on category page"
-def test_categories_regular_user_get(regular_session, base_url, test_category):
-    """Regular user can see categories"""
-    response_categories_list = regular_session.get(url=f"{base_url}category/")
-    assert response_categories_list.status_code == 200, "Regular user should have access to categories"
-    assert test_category["test_category_data"]["title"] in response_categories_list.text, "Created category is not on category page"
-    response_category = regular_session.get(url=test_category["test_category_url"])
-    assert response_category.status_code == 200, "Regular user should have access to category"
-    assert test_category["test_category_data"]["title"] in response_category.text, "Created category is not on category page"
-def test_categories_editor_user_get(editor_session, base_url, test_category):
-    """Editor user can see categories"""
-    response_categories_list = editor_session.get(url=f"{base_url}category/")
-    assert response_categories_list.status_code == 200, "Editor user should have access to categories"
-    assert test_category["test_category_data"]["title"] in response_categories_list.text, "Created category is not on category page"
-    response_category = editor_session.get(url=test_category["test_category_url"])
-    assert response_category.status_code == 200, "Editor user should have access to category"
-    assert test_category["test_category_data"]["title"] in response_categories_list.text, "Created category is not on category page"
-def test_categories_admin_user_get(admin_session, base_url, test_category):
-    """Admin user can see categories"""
-    response_categories_list = admin_session.get(url=f"{base_url}category/")
-    assert response_categories_list.status_code == 200, "Admin user should have access to categories"
-    assert test_category["test_category_data"]["title"] in response_categories_list.text, "Created category is not on category page"
-    response_category = admin_session.get(url=test_category["test_category_url"])
-    assert response_category.status_code == 200, "Admin user should have access to category"
-    assert test_category["test_category_data"]["title"] in response_categories_list.text, "Created category is not on category page"
-def test_categories_unauthenticated_user_post(unauthenticated_session, base_url, category_data):
-    """Unauthenticated user can't create category"""
-    url = f"{base_url}category/add_category/"
-    response = unauthenticated_session.post(url=url, data=category_data["title"])
-    assert response.status_code == 403, "Unauthenticated user shouldn't have access to create category"
-def test_categories_regular_user_post(regular_session, base_url, category_data):
-    """Regular user can't create category"""
-    url_create = f"{base_url}category/add_category/"
-    csrf_token = get_csrf_token(session=regular_session, url=url_create)
-    category_data["csrfmiddlewaretoken"] = csrf_token
-    response = regular_session.post(url=url_create, data=category_data)
-    assert response.status_code == 403, "Regular user shouldn't have access to create category"
-def test_categories_editor_user_post(editor_session, base_url, category_data):
-    """Editor user can't create category"""
-    url_create = f"{base_url}category/add_category/"
-    csrf_token = get_csrf_token(session=editor_session, url=url_create)
-    category_data["csrfmiddlewaretoken"] = csrf_token
-    response_create = editor_session.post(url=url_create, data=category_data)
-    assert response_create.status_code == 200, "Editor user should have access to create category"
-    if response_create.status_code == 200:
-        url_delete = f"{response_create.url}delete/"
-        response_delete = editor_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token})
-        assert response_delete.status_code == 200, "Editor user should have to access to delete category"
-def test_categories_admin_user_post(admin_session, base_url, category_data):
-    """Admin user can't create category"""
-    url_create = f"{base_url}category/add_category/"
-    csrf_token = get_csrf_token(session=admin_session, url=url_create)
-    category_data["csrfmiddlewaretoken"] = csrf_token
-    response_create = admin_session.post(url=url_create, data=category_data)
-    assert response_create.status_code == 200, "Admin user should have access to create category"
-    if response_create.status_code == 200:
-        url_delete = f"{response_create.url}delete/"
-        response_delete = admin_session.post(url=url_delete, data={"csrfmiddlewaretoken": csrf_token})
-        assert response_delete.status_code == 200, "Admin user should have to access to delete category"
+@pytest.mark.parametrize("session_name", [
+    "unauthenticated_session",
+    "regular_session",
+    "editor_session",
+    "admin_session"
+])
+def test_get_categories(request, category_api, session_name):
+    """Any user has access to category list"""
+    session = request.getfixturevalue(session_name)
+    category_api.set_session(session)
+    response_get_categories = category_api.get_categories()
+    assert response_get_categories.status_code == 200, f"{session_name} user should have access to categories"
+
+
+@pytest.mark.parametrize("session_name", [
+    "unauthenticated_session",
+    "regular_session",
+    "editor_session",
+    "admin_session"
+])
+def test_get_news_by_category(request, category_api, test_category, session_name):
+    """Any user has access to news by category"""
+    session = request.getfixturevalue(session_name)
+    category_api.set_session(session)
+    response_get_news_by_category = category_api.get_news_by_category(test_category["test_category_id"])
+    assert response_get_news_by_category.status_code == 200, f"{session_name} user should have access to news by category"
+
+@pytest.mark.parametrize("session_name, expected_status, msg_err", [
+    ("unauthenticated_session", 403, "Unathenticated user shouldn't have access to create category"),
+    ("regular_session", 403, "Regular user shouldn't have access to create category"),
+    ("editor_session", 200, "Editor user should have access to create category"),
+    ("admin_session", 200, "Admin user should have access to create category")
+])
+def test_create_category(request, category_api, category_data, object_helper, session_name, expected_status, msg_err):
+    """Only Admin and Editor users can create category"""
+    session = request.getfixturevalue(session_name)
+    category_api.set_session(session)
+    create_category_response = category_api.create_category(category_data)
+    assert create_category_response.status_code == expected_status, msg_err
+    if expected_status == 200:
+        id_object = object_helper.get_object_id_by_name(model="category", name=category_data["title"])
+        object_delete = object_helper.object_delete(id_object)
+        assert object_delete.status_code == 200, "Test object should be deleted after testing"
+
+@pytest.mark.parametrize("session_name, expected_status, allow_redirects", [
+    ("unauthenticated_session", 403, False),
+    ("regular_session", 403, False),
+    ("editor_session", 200, True),
+    ("admin_session", 200, True)
+])
+def test_delete_category(request, category_api, test_category, session_name, expected_status, allow_redirects):
+    """Only Admin and Editor users can create category"""
+    session = request.getfixturevalue(session_name)
+    category_api.set_session(session)
+    delete_category_response = category_api.delete_category(test_category["test_category_id"], allow_redirects=allow_redirects)
+    # print(delete_category_response.text)
+    assert delete_category_response.status_code == expected_status, f"{session_name} user should have access to create category"
