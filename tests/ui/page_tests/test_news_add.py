@@ -2,6 +2,55 @@ import pytest
 from playwright.sync_api import Page, expect
 from helpers import object_delete
 
+
+@pytest.mark.parametrize("user", [
+    "editor_user",
+    "admin_user"
+])
+def test_news_add_page(request, news_add_page, login_page, user):
+    """Any user can see category page"""
+    user_data = request.getfixturevalue(user)
+    login_page.login(user_data)
+    news_add_page.navigate()
+    expect(news_add_page.headers.logout_button).to_be_visible()
+    expect(news_add_page.headers.user_role_text).to_be_visible()
+    expect(news_add_page.news_title_title).to_be_visible()
+    expect(news_add_page.news_title_field).to_be_visible()
+    expect(news_add_page.news_title_hint).to_be_visible()
+    expect(news_add_page.news_category_title).to_be_visible()
+    expect(news_add_page.news_category_field).to_be_visible()
+    expect(news_add_page.news_category_hint).to_be_visible()
+    expect(news_add_page.news_short_description_title).to_be_visible()
+    expect(news_add_page.news_short_description_field).to_be_visible()
+    expect(news_add_page.news_short_description_hint).to_be_visible()
+    expect(news_add_page.news_content_title).to_be_visible()
+    expect(news_add_page.news_content_field).to_be_visible()
+    expect(news_add_page.news_content_hint).to_be_visible()
+    expect(news_add_page.news_image_title).to_be_visible()
+    expect(news_add_page.news_image_field).to_be_visible()
+    expect(news_add_page.news_image_hint).to_be_visible()
+    expect(news_add_page.news_tags_title).to_be_visible()
+    expect(news_add_page.news_tags_field).to_be_visible()
+    expect(news_add_page.news_tags_hint).to_be_visible()
+    expect(news_add_page.news_add_button).to_be_visible()
+    expect(news_add_page.cancel_button).to_be_visible()
+
+@pytest.mark.parametrize("user", [
+    "editor_user",
+    "admin_user"
+])
+def test_news_add(request, news_add_page, login_page, news_data, test_category, object_helper, user):
+    """Any user can see category page"""
+    import re
+    user_data = request.getfixturevalue(user)
+    login_page.login(user_data)
+    news_add_page.news_add(news_data, test_category)
+    expect(news_add_page.page).to_have_url(re.compile(rf"{news_add_page.base_url}/news/\d+/"))
+    test_news_id = object_helper.get_object_id_by_name(model="news", name=news_data["title"])
+    object_delete_response = object_helper.object_delete(test_news_id)
+    assert object_delete_response.status_code == 200, "Test news should be deleted after tests"
+
+
 def test_news_add_editor_user(page: Page, base_url: str, editor_user):
     """Editor user can open add news page"""
     page.goto(base_url)
