@@ -1,6 +1,5 @@
 import pytest
 import requests
-from typing import Dict, Any, Generator
 from faker import Faker
 from helpers import login_user, get_csrf_token, object_delete, FILE_PATH, ObjectHelper
 import re
@@ -8,6 +7,18 @@ from api.api_objects.user_api import AuthApi, UserApi
 from api.api_objects.category_api import CategoryApi
 from api.api_objects.news_api import NewsApi
 from api.api_objects.secret_api import SecretApi
+from playwright.sync_api import Page
+from ui.ui_objects.home_page import HomePage
+from ui.ui_objects.login_page import LoginPage
+from ui.ui_objects.register_page import RegisterPage
+from ui.ui_objects.category_add_page import CategoryAddPage
+from ui.ui_objects.category_page import CategoryPage
+from ui.ui_objects.category_news_page import CategoryNewsPage
+from ui.ui_objects.news_page import NewsPage
+from ui.ui_objects.news_edit_page import NewsEditPage
+from ui.ui_objects.news_detail_page import NewsDetailPage
+from ui.ui_objects.news_add_page import NewsAddPage
+from ui.ui_objects.secret_page import SecretPage
 
 
 @pytest.fixture(scope="session")
@@ -25,6 +36,15 @@ def fake() -> Faker:
     """Provides a Faker instance for generating fake data.
        Create fresh for each test that needs it."""
     return Faker()
+
+@pytest.fixture
+def empty_user():
+    """Empty user data"""
+    test_empty_user = {
+        "username": "",
+        "password": ""
+        }
+    return test_empty_user
 
 @pytest.fixture
 def undefined_user():
@@ -92,6 +112,29 @@ def user_data():
         "password2": "autouserui_123456789!"
     }
     return test_user_data
+
+@pytest.fixture
+def user_data_empty_username():
+    """Provides user data"""
+    test_user_data = {
+        "username": " ",
+        "email": "test_autouser_ui@example.ru",
+        "password1": "autouserui_123456789!",
+        "password2": "autouserui_123456789!"
+    }
+    return test_user_data
+
+@pytest.fixture
+def user_data_username_and_password_similar():
+    """Provides user data"""
+    test_user_data = {
+        "username": "test_autouser_ui",
+        "email": "test_autouser_ui@example.ru",
+        "password1": "test_autouser_ui",
+        "password2": "test_autouser_ui"
+    }
+    return test_user_data
+
 
 @pytest.fixture
 def unauthenticated_session():
@@ -260,8 +303,63 @@ def news_api(base_url):
 
 @pytest.fixture
 def secret_api(base_url):
-    """Create SecretApi object with secret page methods"""
+    """Create SecretApi object with secret api methods"""
     return SecretApi(base_url)
+
+@pytest.fixture
+def home_page(page: Page, base_url):
+    """Create HomePage object with home page methods"""
+    return HomePage(page, base_url)
+
+@pytest.fixture
+def login_page(page: Page, base_url):
+    """Create LoginPage object with login page methods"""
+    return LoginPage(page, base_url)
+
+@pytest.fixture
+def register_page(page: Page, base_url):
+    """Create RegisterPage object with register page methos"""
+    return RegisterPage(page, base_url)
+
+@pytest.fixture
+def category_add_page(page: Page, base_url):
+    """Create CategoryAddPage object with Category Add page methods"""
+    return CategoryAddPage(page, base_url)
+
+@pytest.fixture
+def category_page(page: Page, base_url):
+    """Create CategoryPage object with Category page methods"""
+    return CategoryPage(page, base_url)
+
+@pytest.fixture
+def category_news_page(page: Page, base_url):
+    """Create CategoryNewsPage object with Category news page methods"""
+    return CategoryNewsPage(page, base_url)
+
+@pytest.fixture
+def news_page(page: Page, base_url):
+    """Create NewsPage object with News page methods"""
+    return NewsPage(page, base_url)
+
+@pytest.fixture
+def news_edit_page(page: Page, base_url):
+    """Create NewsEditPage object with News edit page methods"""
+    return NewsEditPage(page, base_url)
+
+@pytest.fixture
+def news_detail_page(page: Page, base_url):
+    """Create NewsDetailPage object with News detail page methods"""
+    return NewsDetailPage(page, base_url)
+
+@pytest.fixture
+def news_add_page(page: Page, base_url):
+    """Create NewsAddPage object with News add page methods"""
+    return NewsAddPage(page, base_url)
+
+@pytest.fixture
+def secret_page(page: Page, base_url):
+    """Create SecretPage object with Secret page methods"""
+    return SecretPage(page, base_url)
 
 
 def pytest_configure(config):
