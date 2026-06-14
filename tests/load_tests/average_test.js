@@ -1,7 +1,7 @@
-import { readersFlow } from './config/scenarios.js'
+import { testReadersFlow, testEditorFlow, testAdminFlow } from './config/scenarios.js'
 
 
-export { readersFlow };
+export { testReadersFlow, testEditorFlow, testAdminFlow };
 
 export let options = {
     scenarios: {
@@ -9,10 +9,34 @@ export let options = {
             executor: 'ramping-vus',
             startVUs: 0,
             stages: [
-                { duration: '5s', target: 2 },
-                { duration: '5s', target: 5 },
+                { duration: '5s', target: 10 },
+                { duration: '10s', target: 50 },
+                { duration: '10s', target: 80 },
+                { duration: '5s', target: 0 },
             ],
-            exec: 'readersFlow',
+            exec: 'testReadersFlow',
+        },
+        editors: {
+            executor: 'ramping-vus',
+            startVUs: 0,
+            stages: [
+                { duration: '2s', target: 2},
+                { duration: '10s', target: 4},
+                { duration: '10s', target: 5},
+                { duration: '5s', target: 0},
+            ],
+            exec: 'testEditorFlow',
+        },
+        admins: {
+            executor: 'ramping-vus',
+            startVUs: 0,
+            stages: [
+                {duration: '2s', target: 1},
+                {duration: '10s', target: 2},
+                {duration: '10s', target: 2},
+                {duration: '5s', target: 0},
+            ],
+            exec: 'testAdminFlow',
         }
     },
     thresholds: {
