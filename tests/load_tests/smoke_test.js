@@ -1,7 +1,7 @@
-import { readersFlow } from './config/scenarios.js'
+import { testReadersFlow } from './config/scenarios.js'
 
 
-export { readersFlow };
+export { testReadersFlow };
 
 export let options = {
     scenarios: {
@@ -9,7 +9,7 @@ export let options = {
             executor: 'constant-vus',
             vus: 2,
             duration: '5s',
-            exec: 'readersFlow'
+            exec: 'testReadersFlow'
         }
     }
 };
