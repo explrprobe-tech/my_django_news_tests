@@ -19,6 +19,13 @@ from ui.ui_objects.news_edit_page import NewsEditPage
 from ui.ui_objects.news_detail_page import NewsDetailPage
 from ui.ui_objects.news_add_page import NewsAddPage
 from ui.ui_objects.secret_page import SecretPage
+import allure
+import time
+import os
+from datetime import datetime
+from playwright.sync_api import Page
+
+
 
 
 @pytest.fixture(scope="session")
@@ -373,10 +380,62 @@ def pytest_configure(config):
         "smoke: marks tests as smoke tests (run critical tests first)"
     )
 
-def pytest_runtest_setup(item):
-    """Runs before each test"""
-    print(f"\nStarting test: {item.name}")
+def pytest_sessionfinish(session, exitstatus):
+    """Generate environment properties for Allure report"""
+    allure_dir = "allure-results"
+    os.makedirs(allure_dir, exist_ok=True)
+    
+    with open(f"{allure_dir}/environment.properties", "w") as f:
+        f.write(f"Browser=Chromium\n")
+        f.write(f"Base_URL={os.environ.get('BASE_URL', 'http://localhost:8000')}\n")
+        f.write(f"Test_Environment=Staging\n")
+        f.write(f"Python_Version={os.sys.version}\n")
+        f.write(f"Test_Date={datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    
+    if rep.when == "call" and rep.failed:
+        if "page" in item.fixturenames:
+            page = item.funcargs["page"]
+            screenshot_dir = "allure-results/screenshots"
+            os.makedirs(screenshot_dir, exist_ok=True)
+            
+            screenshot_path = f"{screenshot_dir}/{item.name}_{datetime.now()}.png"
+            page.screenshot(path=screenshot_path)
+            
+            allure.attach.file(
+                screenshot_path,
+                name=f"Failed: {item.name}",
+                attachment_type=allure.attachment_type.PNG
+            )
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_setup(item):
+    """Add dynamic test title to Allure"""
+    item._start_time = time.perf_counter()
+    if hasattr(item, 'callspec'):
+        params = item.callspec.params
+        if params:
+            param_str = ", ".join([f"{k}={v}" for k, v in params.items()])
+            allure.dynamic.title(f"{item.name} [{param_str}]")
+
+@pytest.hookimpl(tryfirst=True)
 def pytest_runtest_teardown(item):
     """Runs after each test"""
+    if hasattr(item, '_start_time'):
+        duration = time.perf_counter() - item._start_time
+        allure.attach(
+            f"Test duration: {duration:.3f}s",
+            name="⏱️ Execution Time",
+            attachment_type=allure.attachment_type.TEXT
+        )
+        if duration > 5:
+            allure.attach(
+                f"⚠️ Test took {duration:.3f}s (over 5s threshold)",
+                name="⚠️ Performance Warning",
+                attachment_type=allure.attachment_type.TEXT
+            )
     print(f"\nFinished test: {item.name}")

@@ -17,6 +17,9 @@ jobs:
   tests_api_ui:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     
     steps:
     - name: Checkout Django Website
@@ -39,6 +42,12 @@ jobs:
       run: |
         cd django-website/mysite
         pip install -r requirements.txt
+
+    - name: Install Allure
+      run: |
+        sudo apt-add-repository ppa:qameta/allure -y
+        sudo apt-get update
+        sudo apt-get install allure
 
     - name: Validate Django Website
       run: |
@@ -88,6 +97,43 @@ jobs:
         cd tests/tests
         pytest ui/page_tests/ -v
         pytest ui/e2e_tests/ -v
+
+    - name: Get previous report for history
+      uses: actions/checkout@v4
+      continue-on-error: true
+      with:
+        ref: gh-pages
+        path: gh-pages
+
+    - name: Copy history from previous run
+      run: |
+        if [ -d "gh-pages/allure-report/history" ]; then
+          cp -r gh-pages/allure-report/history allure-results/
+        fi
+
+    - name: 📊 Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: ./allure-report
+        destination_dir: allure
+        keep_files: true 
+
+    - name: 📊 Add test summary to GitHub
+      run: |
+        echo "## 📊 Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Status | Count |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+        PASSED=$(grep -r '"status":"passed"' allure-results/*.json 2>/dev/null | wc -l)
+        FAILED=$(grep -r '"status":"failed"' allure-results/*.json 2>/dev/null | wc -l)
+        SKIPPED=$(grep -r '"status":"skipped"' allure-results/*.json 2>/dev/null | wc -l)
+        echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+        echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+        echo "| ⚠️ Skipped | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 [View full Allure report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/allure/)" >> $GITHUB_STEP_SUMMARY
   
   load_tests:
     runs-on: ubuntu-latest

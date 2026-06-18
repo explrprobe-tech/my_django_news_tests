@@ -1,4 +1,6 @@
 __pycache__
 .venv
 venv_django_website_tests
+allure-results
+allure-report
 test.py

@@ -77,3 +77,62 @@ jobs:
           k6 run load_tests/smoke_test.js
         env:
           BASE_URL: http://localhost:8000
+  
+  average_test:
+    runs-on: 'ubuntu-latest'
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.test-type == 'all' || github.event.inputs.test-type == 'average_test'
+
+
+    steps:
+      - name: Checkout Django Website
+        uses: actions/checkout@v4
+        with:
+          repository: explrprobe-tech/my_django_news_website
+          path: django-website
+
+      - name: Checkout tests
+        uses: actions/checkout@v4
+        with:
+          path: tests
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install Django dependencies
+        run: |
+          cd django-website/mysite
+          pip install -r requirements.txt
+          pip install gunicorn
+
+      - name: Start DJango with Gunicorn
+        run: |
+          cd django-website/mysite
+          gunicorn --workers 4 --bind 0.0.0.0:8000 mysite.wsgi:application &
+
+      - name: Wait for Django
+        run: |
+          for i in {1..30}; do
+            if curl -s http://127.0.0.1:8000/ > /dev/null; then
+              echo "✅ Django is ready for load tests!"
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run smoke load test
+        run: |
+          cd tests/tests
+          k6 run load_tests/average_test.js
+        env:
+          BASE_URL: http://localhost:8000
