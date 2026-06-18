@@ -114,6 +114,10 @@ jobs:
           cp -r gh-pages/allure-report/history allure-results/
         fi
 
+    - name: Generate Allure report
+      run: |
+        allure generate allure-results -o allure-report --clean
+
     - name: 📊 Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
