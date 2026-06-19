@@ -1,0 +1,2 @@
+
+Finished test: test_user_register[chromium-user_data_empty_username-False]

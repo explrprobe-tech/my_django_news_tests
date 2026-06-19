@@ -1,0 +1,2 @@
+
+Finished test: test_news_add_editor_user[chromium]

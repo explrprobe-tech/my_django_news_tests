@@ -1,0 +1,2 @@
+
+Finished test: test_delete_news[editor_session-200-Editor user should have access to delete news-True]

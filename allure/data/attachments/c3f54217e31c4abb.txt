@@ -1,0 +1,2 @@
+
+Finished test: test_edit_news[editor_session-200-Editor user should have access to create news]

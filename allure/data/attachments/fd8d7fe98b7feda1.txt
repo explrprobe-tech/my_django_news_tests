@@ -1,0 +1,2 @@
+
+Finished test: test_create_news[regular_session-403-Regular user shouldn't have access to create news]

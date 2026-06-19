@@ -1,0 +1,2 @@
+
+Finished test: test_news_edit[chromium-admin_user]

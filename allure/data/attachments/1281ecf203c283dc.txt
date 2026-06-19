@@ -1,0 +1,2 @@
+
+Finished test: test_create_category[admin_session-200-Admin user should have access to create category]
