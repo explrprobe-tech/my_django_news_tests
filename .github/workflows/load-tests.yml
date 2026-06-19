@@ -47,6 +47,14 @@ jobs:
           pip install -r requirements.txt
           pip install gunicorn
 
+      - name: Install Allure
+        run: |
+          wget -q https://github.com/allure-framework/allure2/releases/download/2.29.0/allure-2.29.0.tgz
+          tar -xzf allure-2.29.0.tgz
+          sudo mv allure-2.29.0 /opt/allure
+          sudo ln -sf /opt/allure/bin/allure /usr/local/bin/allure
+          allure --version
+
       - name: Start DJango with Gunicorn
         run: |
           cd django-website/mysite
@@ -74,9 +82,35 @@ jobs:
       - name: Run smoke load test
         run: |
           cd tests/tests
-          k6 run load_tests/smoke_test.js
+          mkdir -p allure-results-k6
+          k6 run --out junit=allure-results-k6/results.xml load_tests/smoke_test.js
         env:
           BASE_URL: http://localhost:8000
+
+      - name: Convert k6 JUnit to Allure format
+        run: |
+          cd tests/tests
+          allure generate allure-results-k6 -o allure-results-k6-converted --clean
+
+      - name: Merge Allure results (pytest + k6)
+        run: |
+          # Copy k6 results to main allure-results
+          cp -r tests/tests/allure-results-k6-converted/* allure-results/ 2>/dev/null || true
+          # Copy any pytest results if they exist
+          cp -r tests/tests/allure-results/* allure-results/ 2>/dev/null || true
+
+      - name: Generate combined Allure report
+        run: |
+          allure generate allure-results -o allure-report --clean
+
+      - name: Deploy combined report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: tests/tests/allure-results-k6-converted
+          destination_dir: allure-k6-smoke
+          keep_files: true
   
   average_test:
     runs-on: 'ubuntu-latest'
@@ -106,6 +140,14 @@ jobs:
           pip install -r requirements.txt
           pip install gunicorn
 
+      - name: Install Allure
+        run: |
+          wget -q https://github.com/allure-framework/allure2/releases/download/2.29.0/allure-2.29.0.tgz
+          tar -xzf allure-2.29.0.tgz
+          sudo mv allure-2.29.0 /opt/allure
+          sudo ln -sf /opt/allure/bin/allure /usr/local/bin/allure
+          allure --version
+
       - name: Start DJango with Gunicorn
         run: |
           cd django-website/mysite
@@ -133,6 +175,32 @@ jobs:
       - name: Run smoke load test
         run: |
           cd tests/tests
-          k6 run load_tests/average_test.js
+          mkdir -p allure-results-k6
+          k6 run --out junit=allure-results-k6/results.xml load_tests/average_test.js
         env:
           BASE_URL: http://localhost:8000
+
+      - name: Convert k6 JUnit to Allure format
+        run: |
+          cd tests/tests
+          allure generate allure-results-k6 -o allure-results-k6-converted --clean
+
+      - name: Merge Allure results (pytest + k6)
+        run: |
+          # Copy k6 results to main allure-results
+          cp -r tests/tests/allure-results-k6-converted/* allure-results/ 2>/dev/null || true
+          # Copy any pytest results if they exist
+          cp -r tests/tests/allure-results/* allure-results/ 2>/dev/null || true
+
+      - name: Generate combined Allure report
+        run: |
+          allure generate allure-results -o allure-report --clean
+
+      - name: 📊 Deploy k6 average report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./tests/tests/allure-results-k6-converted
+          destination_dir: allure-k6-average 
+          keep_files: true
