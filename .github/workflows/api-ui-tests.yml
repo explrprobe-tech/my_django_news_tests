@@ -93,13 +93,13 @@ jobs:
     - name: Run api tests
       run: |
         cd tests/tests
-        pytest api/ -v
+        pytest api/ -v --alluredir=${{ github.workspace }}/allure-results
         
     - name: Run ui tests
       run: |
         cd tests/tests
-        pytest ui/page_tests/ -v
-        pytest ui/e2e_tests/ -v
+        pytest ui/page_tests/ -v --alluredir=${{ github.workspace }}/allure-results
+        pytest ui/e2e_tests/ -v --alluredir=${{ github.workspace }}/allure-results
 
     - name: Get previous report for history
       uses: actions/checkout@v4
