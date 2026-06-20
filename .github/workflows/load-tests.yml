@@ -80,10 +80,10 @@ jobs:
         run: |
           cd tests/tests
           mkdir -p k6-smoke-results
-          K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=k6-smoke-results/index.html k6 run load_tests/smoke_test.js
-          # Fix: Copy to the correct location
+          K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=${{ github.workspace }}/tests/tests/k6-smoke-results/index.html k6 run load_tests/smoke_test.js
+          # Copy results to combined directory
           mkdir -p ${{ github.workspace }}/combined-results/k6-smoke
-          cp -r k6-smoke-results/* ${{ github.workspace }}/combined-results/k6-smoke/
+          cp -r k6-smoke-results/* ${{ github.workspace }}/combined-results/k6-smoke/ 2>/dev/null || echo "No files to copy"
         env:
           BASE_URL: http://localhost:8000
 
@@ -95,21 +95,24 @@ jobs:
         run: |
           cd tests/tests
           mkdir -p k6-average-results
-          K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=k6-average-results/index.html k6 run load_tests/average_test.js
-          # Fix: Copy to the correct location
+          K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=${{ github.workspace }}/tests/tests/k6-average-results/index.html k6 run load_tests/average_test.js
+          # Copy results to combined directory
           mkdir -p ${{ github.workspace }}/combined-results/k6-average
-          cp -r k6-average-results/* ${{ github.workspace }}/combined-results/k6-average/
+          cp -r k6-average-results/* ${{ github.workspace }}/combined-results/k6-average/ 2>/dev/null || echo "No files to copy"
         env:
           BASE_URL: http://localhost:8000
 
-      - name: 🔍 Debug - Check combined results
+      - name: 🔍 Debug - Check results
         run: |
-          echo "📁 Combined results folder structure:"
-          ls -la combined-results/
-          echo "📁 k6-smoke folder:"
-          ls -la combined-results/k6-smoke/ || echo "Folder not found!"
-          echo "📁 k6-average folder:"
-          ls -la combined-results/k6-average/ || echo "Folder not found!"
+          echo "📁 Current directory: $(pwd)"
+          echo "📁 tests/tests folder:"
+          ls -la tests/tests/ || echo "Folder not found!"
+          echo "📁 k6-smoke-results:"
+          ls -la tests/tests/k6-smoke-results/ || echo "Folder not found!"
+          echo "📁 k6-average-results:"
+          ls -la tests/tests/k6-average-results/ || echo "Folder not found!"
+          echo "📁 combined-results:"
+          ls -la combined-results/ || echo "Folder not found!"
 
       - name: Deploy all results to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
