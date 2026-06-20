@@ -81,8 +81,9 @@ jobs:
           cd tests/tests
           mkdir -p k6-smoke-results
           K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=k6-smoke-results/index.html k6 run load_tests/smoke_test.js
-          # Переносим результат в общую папку сборки
-          cp -r k6-smoke-results ../../combined-results/k6-smoke
+          # Fix: Copy to the correct location
+          mkdir -p ${{ github.workspace }}/combined-results/k6-smoke
+          cp -r k6-smoke-results/* ${{ github.workspace }}/combined-results/k6-smoke/
         env:
           BASE_URL: http://localhost:8000
 
@@ -95,10 +96,20 @@ jobs:
           cd tests/tests
           mkdir -p k6-average-results
           K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=k6-average-results/index.html k6 run load_tests/average_test.js
-          # Переносим результат в общую папку сборки
-          cp -r k6-average-results ../../combined-results/k6-average
+          # Fix: Copy to the correct location
+          mkdir -p ${{ github.workspace }}/combined-results/k6-average
+          cp -r k6-average-results/* ${{ github.workspace }}/combined-results/k6-average/
         env:
           BASE_URL: http://localhost:8000
+
+      - name: 🔍 Debug - Check combined results
+        run: |
+          echo "📁 Combined results folder structure:"
+          ls -la combined-results/
+          echo "📁 k6-smoke folder:"
+          ls -la combined-results/k6-smoke/ || echo "Folder not found!"
+          echo "📁 k6-average folder:"
+          ls -la combined-results/k6-average/ || echo "Folder not found!"
 
       - name: Deploy all results to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
