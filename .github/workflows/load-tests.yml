@@ -71,13 +71,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Run k6 smoke test with JSON output
+      - name: Login to k6 Cloud
+        run: |
+          k6 login cloud --token ${{ secrets.K6_CLOUD_TOKEN }}
+        env:
+          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
+
+      - name: Run k6 smoke test with Cloud output
         run: |
           cd tests/tests
           mkdir -p k6-results
-          k6 run load_tests/smoke_test.js --summary-export=k6-results/summary.json
+          k6 run load_tests/smoke_test.js --out cloud --summary-export=k6-results/summary.json
         env:
           BASE_URL: http://localhost:8000
+          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
 
       - name: Upload k6 smoke results
         uses: actions/upload-artifact@v4
@@ -95,6 +102,13 @@ jobs:
           publish_dir: tests/tests/k6-results/
           destination_dir: k6-smoke
           keep_files: true
+
+      - name: 📊 Print k6 Cloud URL
+        run: |
+          echo "=========================================="
+          echo "📊 k6 Cloud Results:"
+          echo "https://app.k6.io/runs"
+          echo "=========================================="
 
   average_test:
     runs-on: ubuntu-latest
@@ -147,13 +161,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Run k6 average test with JSON output
+      - name: Login to k6 Cloud
+        run: |
+          k6 login cloud --token ${{ secrets.K6_CLOUD_TOKEN }}
+        env:
+          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
+
+      - name: Run k6 average test with Cloud output
         run: |
           cd tests/tests
           mkdir -p k6-results
-          k6 run load_tests/average_test.js --summary-export=k6-results/summary.json
+          k6 run load_tests/average_test.js --out cloud --summary-export=k6-results/summary.json
         env:
           BASE_URL: http://localhost:8000
+          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
 
       - name: Upload k6 average results
         uses: actions/upload-artifact@v4
@@ -171,3 +192,10 @@ jobs:
           publish_dir: tests/tests/k6-results/
           destination_dir: k6-average
           keep_files: true
+
+      - name: 📊 Print k6 Cloud URL
+        run: |
+          echo "=========================================="
+          echo "📊 k6 Cloud Results:"
+          echo "https://app.k6.io/runs"
+          echo "=========================================="
