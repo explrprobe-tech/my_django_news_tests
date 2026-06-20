@@ -1,0 +1,203 @@
+{
+    "metrics": {
+        "http_req_duration{expected_response:true}": {
+            "avg": 12.059510873303163,
+            "min": 1.580768,
+            "med": 4.5371475,
+            "max": 458.423199,
+            "p(90)": 6.4905934,
+            "p(95)": 8.298968199999997
+        },
+        "http_req_receiving": {
+            "avg": 0.080829765837104,
+            "min": 0.035854,
+            "med": 0.07194,
+            "max": 0.627846,
+            "p(90)": 0.10458040000000003,
+            "p(95)": 0.12645169999999997
+        },
+        "checks": {
+            "passes": 851,
+            "fails": 0,
+            "value": 1
+        },
+        "vus_max": {
+            "value": 87,
+            "min": 87,
+            "max": 87
+        },
+        "iterations": {
+            "count": 168,
+            "rate": 4.149578204887393
+        },
+        "http_req_duration": {
+            "avg": 12.059510873303163,
+            "min": 1.580768,
+            "med": 4.5371475,
+            "max": 458.423199,
+            "p(90)": 6.4905934,
+            "p(95)": 8.298968199999997,
+            "thresholds": {
+                "p(95) < 300": false
+            }
+        },
+        "vus": {
+            "min": 1,
+            "max": 86,
+            "value": 1
+        },
+        "http_req_connecting": {
+            "max": 2.129328,
+            "p(90)": 0.23229540000000004,
+            "p(95)": 0.2603009499999998,
+            "avg": 0.16847466176470569,
+            "min": 0.070723,
+            "med": 0.1520605
+        },
+        "data_sent": {
+            "count": 85041,
+            "rate": 2100.501667391838
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 884,
+            "thresholds": {
+                "rate < 0.005": false
+            },
+            "value": 0
+        },
+        "http_req_tls_handshaking": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0
+        },
+        "http_req_blocked": {
+            "avg": 0.21493961538461553,
+            "min": 0.092153,
+            "med": 0.1973365,
+            "max": 2.297443,
+            "p(90)": 0.28042730000000005,
+            "p(95)": 0.3276940499999998
+        },
+        "http_reqs": {
+            "count": 884,
+            "rate": 21.834685316193188
+        },
+        "http_req_waiting": {
+            "p(90)": 6.3474256,
+            "p(95)": 8.14305315,
+            "avg": 11.943302619909499,
+            "min": 1.48237,
+            "med": 4.40976,
+            "max": 458.325799
+        },
+        "data_received": {
+            "count": 26249235,
+            "rate": 648352.6991129009
+        },
+        "iteration_duration": {
+            "p(90)": 11030.879543000001,
+            "p(95)": 11033.9859732,
+            "avg": 10788.303902863096,
+            "min": 3310.466019,
+            "med": 11026.259281999999,
+            "max": 18485.447852
+        },
+        "http_req_sending": {
+            "med": 0.032902,
+            "max": 0.189346,
+            "p(90)": 0.0477896,
+            "p(95)": 0.05829434999999998,
+            "avg": 0.03537848755656111,
+            "min": 0.01451
+        }
+    },
+    "root_group": {
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "Open Home page is 200": {
+                    "passes": 175,
+                    "fails": 0,
+                    "name": "Open Home page is 200",
+                    "path": "::Open Home page is 200",
+                    "id": "2cf27df07c43762f0e895a00b10041e5"
+                },
+                "Open Login page is 200": {
+                    "path": "::Open Login page is 200",
+                    "id": "c395cb8218e58a309dbed58bf3bbe615",
+                    "passes": 19,
+                    "fails": 0,
+                    "name": "Open Login page is 200"
+                },
+                "Open Category page is 200": {
+                    "name": "Open Category page is 200",
+                    "path": "::Open Category page is 200",
+                    "id": "e075cbbeacf1f453cdcd0beb9c766f1c",
+                    "passes": 156,
+                    "fails": 0
+                },
+                "Login is 302": {
+                    "name": "Login is 302",
+                    "path": "::Login is 302",
+                    "id": "0f424b163f713953891221800b829aba",
+                    "passes": 19,
+                    "fails": 0
+                },
+                "Open Category News page is 200": {
+                    "path": "::Open Category News page is 200",
+                    "id": "a2e404643e7e8c9b7a43dcc49e39e7e3",
+                    "passes": 149,
+                    "fails": 0,
+                    "name": "Open Category News page is 200"
+                },
+                "Open News Detail page is 200": {
+                    "name": "Open News Detail page is 200",
+                    "path": "::Open News Detail page is 200",
+                    "id": "036ee1da8770696bec401ac25b2840ab",
+                    "passes": 149,
+                    "fails": 0
+                },
+                "Open Add Category page is 200": {
+                    "id": "450f68bb90619f9c7380fe6ee754c63f",
+                    "passes": 7,
+                    "fails": 0,
+                    "name": "Open Add Category page is 200",
+                    "path": "::Open Add Category page is 200"
+                },
+                "Open News page is 200": {
+                    "fails": 0,
+                    "name": "Open News page is 200",
+                    "path": "::Open News page is 200",
+                    "id": "090f56bfd65f822762c1043e2e34fb11",
+                    "passes": 156
+                },
+                "Add Category is 302": {
+                    "passes": 7,
+                    "fails": 0,
+                    "name": "Add Category is 302",
+                    "path": "::Add Category is 302",
+                    "id": "976eeee5c0389ed0683f2b80bd26a7e8"
+                },
+                "Open Add News page is 200": {
+                    "path": "::Open Add News page is 200",
+                    "id": "7dd1aff10375b7ee92d25d6ed2102e50",
+                    "passes": 7,
+                    "fails": 0,
+                    "name": "Open Add News page is 200"
+                },
+                "Add News is 302": {
+                    "name": "Add News is 302",
+                    "path": "::Add News is 302",
+                    "id": "2bb52d239986afde0fe894160a224f16",
+                    "passes": 7,
+                    "fails": 0
+                }
+            },
+        "name": "",
+        "path": ""
+    }
+}
