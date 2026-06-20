@@ -85,7 +85,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: tests/tests/k6-results/
+          publish_dir: ./tests/tests/k6-results/
           destination_dir: k6-smoke
           keep_files: true
 
@@ -154,6 +154,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: tests/tests/k6-results/
+          publish_dir: ./tests/tests/k6-results/
           destination_dir: k6-average
           keep_files: true
