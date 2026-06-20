@@ -75,7 +75,7 @@ jobs:
         run: |
           cd tests/tests
           mkdir -p k6-results
-          k6 run load_tests/smoke_test.js --out web-dashboard=k6-results/index.html
+          K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=k6-results/index.html k6 run load_tests/smoke_test.js
         env:
           BASE_URL: http://localhost:8000
 
@@ -144,7 +144,7 @@ jobs:
         run: |
           cd tests/tests
           mkdir -p k6-results
-          k6 run load_tests/average_test.js --out web-dashboard=k6-results/index.html
+          K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=k6-results/index.html k6 run load_tests/average_test.js
         env:
           BASE_URL: http://localhost:8000
 
