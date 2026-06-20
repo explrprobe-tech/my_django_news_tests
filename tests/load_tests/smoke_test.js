@@ -1,5 +1,4 @@
-import { testReadersFlow } from './config/scenarios.js';
-import { jUnit, textSummary } from 'https://k6.io';
+import { testReadersFlow } from './config/scenarios.js'
 
 
 export { testReadersFlow };
@@ -14,10 +13,3 @@ export let options = {
         }
     }
 };
-
-export function handleSummary(data) {
-    return {
-        'stdout': textSummary(data, { indent: ' ', enableColors: true}),
-        'allure-results-k6/results.xml': jUnit(data, { name: 'k6 Average Load Tests'})
-    };
-}
