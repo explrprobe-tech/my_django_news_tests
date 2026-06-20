@@ -71,23 +71,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Run k6 smoke test with Cloud output
+      - name: Run k6 smoke test
         run: |
           cd tests/tests
           mkdir -p k6-results
-          k6 run load_tests/smoke_test.js --out cloud --summary-export=k6-results/summary.json
+          k6 run load_tests/smoke_test.js --summary-export=k6-results/summary.json
         env:
           BASE_URL: http://localhost:8000
-          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
 
-      - name: Upload k6 smoke results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: k6-smoke-results
-          path: tests/tests/k6-results/
-
-      - name: Deploy k6 smoke report to GitHub Pages
+      - name: Deploy k6 smoke results to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: always()
         with:
@@ -148,23 +140,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Run k6 average test with Cloud output
+      - name: Run k6 average test
         run: |
           cd tests/tests
           mkdir -p k6-results
-          k6 run load_tests/average_test.js --out cloud --summary-export=k6-results/summary.json
+          k6 run load_tests/average_test.js --summary-export=k6-results/summary.json
         env:
           BASE_URL: http://localhost:8000
-          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
 
-      - name: Upload k6 average results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: k6-average-results
-          path: tests/tests/k6-results/
-
-      - name: Deploy k6 average report to GitHub Pages
+      - name: Deploy k6 average results to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: always()
         with:
