@@ -53,7 +53,7 @@ jobs:
       - name: Wait for Django
         run: |
           for i in {1..30}; do
-            if curl -s http://127.0.0.1:8000/ > /dev/null; then
+            if curl -s http://127.0.0 > /dev/null; then
               echo "✅ Django is ready for load tests!"
               exit 0
             fi
@@ -64,10 +64,13 @@ jobs:
       - name: Install k6
         run: |
           sudo gpg -k
-          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://://ubuntu.com --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://k6.io stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update
           sudo apt-get install k6
+
+      - name: Create unified deploy directory
+        run: mkdir -p combined-results
 
       # ----------------------------------------------------
       # БЛОК SMOKE TEST
@@ -78,18 +81,10 @@ jobs:
           cd tests/tests
           mkdir -p k6-smoke-results
           K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=k6-smoke-results/index.html k6 run load_tests/smoke_test.js
+          # Переносим результат в общую папку сборки
+          cp -r k6-smoke-results ../../combined-results/k6-smoke
         env:
           BASE_URL: http://localhost:8000
-
-      - name: Deploy k6 smoke results to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.event_name != 'workflow_dispatch' || github.event.inputs.test-type == 'all' || github.event.inputs.test-type == 'smoke_test'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./tests/tests/k6-smoke-results/
-          destination_dir: k6-smoke
-          keep_files: true
 
       # ----------------------------------------------------
       # БЛОК AVERAGE TEST
@@ -100,15 +95,15 @@ jobs:
           cd tests/tests
           mkdir -p k6-average-results
           K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=k6-average-results/index.html k6 run load_tests/average_test.js
+          # Переносим результат в общую папку сборки
+          cp -r k6-average-results ../../combined-results/k6-average
         env:
           BASE_URL: http://localhost:8000
 
-      - name: Deploy k6 average results to GitHub Pages
+      - name: Deploy all results to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: github.event_name != 'workflow_dispatch' || github.event.inputs.test-type == 'all' || github.event.inputs.test-type == 'average_test'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./tests/tests/k6-average-results/
-          destination_dir: k6-average
+          publish_dir: ./combined-results 
           keep_files: true
