@@ -1,4 +1,5 @@
 import { testReadersFlow, testEditorFlow, testAdminFlow } from './config/scenarios.js'
+import { jUnit, textSummary } from 'https://k6.io'
 
 
 export { testReadersFlow, testEditorFlow, testAdminFlow };
@@ -44,3 +45,10 @@ export let options = {
         http_req_failed: ['rate < 0.005'],
     }
 };
+
+export function handleSummary(data) {
+    return {
+        'stdout': textSummary(data, { indent: ' ', enableColors: true}),
+        'allure-results-k6/results.xml': jUnit(data, { name: 'k6 Average Load Tests'})
+    };
+}

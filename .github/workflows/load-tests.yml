@@ -17,6 +17,7 @@ on:
         options:
           - 'all'
           - 'smoke_test'
+          - 'average_test'
 
 jobs:
   smoke_test:
@@ -82,8 +83,7 @@ jobs:
       - name: Run smoke load test
         run: |
           cd tests/tests
-          mkdir -p allure-results-k6
-          k6 run --out junit=allure-results-k6/results.xml load_tests/smoke_test.js
+          k6 run load_tests/smoke_test.js
         env:
           BASE_URL: http://localhost:8000
 
@@ -94,6 +94,8 @@ jobs:
 
       - name: Merge Allure results (pytest + k6)
         run: |
+          cd tests/tests
+          mkdir -p allure-results
           # Copy k6 results to main allure-results
           cp -r tests/tests/allure-results-k6-converted/* allure-results/ 2>/dev/null || true
           # Copy any pytest results if they exist
@@ -101,6 +103,7 @@ jobs:
 
       - name: Generate combined Allure report
         run: |
+          cd tests/tests
           allure generate allure-results -o allure-report --clean
 
       - name: Deploy combined report to GitHub Pages
@@ -108,7 +111,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: tests/tests/allure-results-k6-converted
+          publish_dir: tests/tests/allure-report
           destination_dir: allure-k6-smoke
           keep_files: true
   
@@ -175,8 +178,7 @@ jobs:
       - name: Run smoke load test
         run: |
           cd tests/tests
-          mkdir -p allure-results-k6
-          k6 run --out junit=allure-results-k6/results.xml load_tests/average_test.js
+          k6 run load_tests/average_test.js
         env:
           BASE_URL: http://localhost:8000
 
@@ -187,6 +189,7 @@ jobs:
 
       - name: Merge Allure results (pytest + k6)
         run: |
+          mkdir -p allure-results
           # Copy k6 results to main allure-results
           cp -r tests/tests/allure-results-k6-converted/* allure-results/ 2>/dev/null || true
           # Copy any pytest results if they exist
@@ -201,6 +204,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./tests/tests/allure-results-k6-converted
+          publish_dir: ./tests/tests/allure-report
           destination_dir: allure-k6-average 
           keep_files: true
