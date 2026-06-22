@@ -31,7 +31,7 @@ from playwright.sync_api import Page
 @pytest.fixture(scope="session")
 def base_url() -> str:
     """Base url for all tests (created once for session)."""
-    return "http://127.0.0.1:8000/"
+    return os.environ.get('BASE_URL', 'http://127.0.0.1:8000/')
 
 @pytest.fixture(scope="session")
 def api_url(base_url: str) -> str:
