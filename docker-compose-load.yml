@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  k6-smoke:
+    image: grafana/k6:latest
+    container_name: k6-smoke-test
+    volumes:
+      - ./tests/load_tests:/scripts
+      - ./tests/k6-results:/results
+    environment:
+      - BASE_URL=http://app-under-test:8000
+    command: run /scripts/smoke_test.js --out json=/results/smoke_results.json
+    networks:
+      - load-test-network
+
+  k6-average:
+    image: grafana/k6:latest
+    container_name: k6-average-test
+    volumes:
+      - ./tests/load_tests:/scripts
+      - ./tests/k6-results:/results
+    environment:
+      - BASE_URL=http://app-under-test:8000
+    command: run /scripts/average_test.js --out json=/results/average_results.json
+    networks:
+      - load-test-network
+
+  k6-stress:
+    image: grafana/k6:latest
+    container_name: k6-stress-test
+    volumes:
+      - ./tests/load_tests:/scripts
+      - ./tests/k6-results:/results
+    environment:
+      - BASE_URL=http://app-under-test:8000
+    command: run /scripts/stress_test.js --out json=/results/stress_results.json
+    networks:
+      - load-test-network
+
+  app-under-test:
+    image: mysite-web
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../my_django_news_website/mysite:/app 
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SETTINGS_MODULE=mysite.settings
+      - ALLOWED_HOSTS=app-under-test,localhost,127.0.0.1 
+      - DEBUG=True
+    command: python manage.py runserver 0.0.0.0:8000
+    networks:
+      - load-test-network
+
+networks:
+  load-test-network:
+    driver: bridge
