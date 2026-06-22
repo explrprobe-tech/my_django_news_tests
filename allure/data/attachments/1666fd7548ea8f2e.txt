@@ -1,0 +1,2 @@
+
+Finished test: test_get_categories[editor_session]

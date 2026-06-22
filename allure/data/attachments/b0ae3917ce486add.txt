@@ -1,0 +1,2 @@
+
+Finished test: test_login_user[admin_session-302-admin_user]

@@ -1,0 +1,2 @@
+
+Finished test: test_register_page[chromium]

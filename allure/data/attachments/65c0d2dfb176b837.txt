@@ -1,0 +1,2 @@
+
+Finished test: test_delete_category[editor_session-200-True]

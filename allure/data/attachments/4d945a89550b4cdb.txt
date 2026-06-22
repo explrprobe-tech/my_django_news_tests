@@ -1,0 +1,2 @@
+
+Finished test: test_delete_user_permision[regular_session-403-True]

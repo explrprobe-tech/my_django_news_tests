@@ -1,0 +1,2 @@
+
+Finished test: test_user_register[chromium-user_data_username_and_password_similar-False]

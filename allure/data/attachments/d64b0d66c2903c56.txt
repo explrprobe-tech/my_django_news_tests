@@ -1,0 +1,2 @@
+
+Finished test: test_news_add_to_home_page[chromium]

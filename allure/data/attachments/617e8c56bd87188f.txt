@@ -1,0 +1,2 @@
+
+Finished test: test_delete_news[unauthenticated_session-302-Unathenticated user shouldn't have access to delete news-False]

@@ -1,0 +1,2 @@
+
+Finished test: test_create_category[editor_session-200-Editor user should have access to create category]

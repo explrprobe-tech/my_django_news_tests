@@ -1,0 +1,2 @@
+
+Finished test: test_user_login[chromium-admin_user-True]

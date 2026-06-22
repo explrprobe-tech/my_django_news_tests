@@ -1,0 +1,2 @@
+
+Finished test: test_reading_news[chromium-regular_user]

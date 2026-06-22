@@ -1,0 +1,2 @@
+
+Finished test: test_create_category[unauthenticated_session-403-Unathenticated user shouldn't have access to create category]
