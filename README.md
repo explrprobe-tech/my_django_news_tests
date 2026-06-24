@@ -1,5 +1,7 @@
 # My Django News Website - Test Automation Suite
 
+Project was written with:<br>
+Page Object Model pattern, used stack: pytest + requests, Playwright, k6 and Allure.<br><br>
 This repository contains comprehensive automated tests for the [My Django News Website](https://github.com/explrprobe-tech/my_django_news_website) project.
 
 
@@ -14,79 +16,82 @@ This repository contains comprehensive automated tests for the [My Django News W
 
 ## Project organization
 
-my_django_news_tests/
+my_django_news_tests/<br>
+├── .github/<br>
+│   └── workflows/<br>
+│       ├── api-ui-tests.yml      # API + UI tests CI<br>
+│       └── load-tests.yml        # Performance tests CI<br>
+│<br>
+├── tests/<br>
+│   ├── api/                      # API tests<br>
+│   │   ├── test_auth.py<br>
+│   │   └── test_news.py<br>
+│&nbsp;│<br>
+│   ├── ui/                       # UI tests with Playwright<br>
+│   │   ├── page_tests/<br>
+│   │   └── e2e_tests/<br>
+│&nbsp;│<br>
+│   ├── load_tests/               # k6 performance tests<br>
+│   │   ├── smoke_test.js<br>
+│   │   └── average_test.js<br>
+│&nbsp;│<br>
+│   ├── conftest.py               # Shared test fixtures<br>
+│   └── helpers.py                # Helper functions<br> 
+│<br>
+├── allure-results/               # Allure test results (generated)<br>
+├── pytest.ini                    # Pytest configuration<br>
+├── requirements-test.txt         # Python dependencies<br>
+└── README.md                     # This file<br>
 
-├── .github/
 
-│   └── workflows/
-
-│       ├── api-ui-tests.yml      # API + UI tests CI
-
-│       └── load-tests.yml        # Performance tests CI
-
-├── tests/
-
-│   ├── api/                      # API tests
-
-│   │   ├── test_auth.py
-
-│   │   └── test_news.py
-
-│   ├── ui/                       # UI tests with Playwright
-
-│   │   ├── page_tests/
-
-│   │   └── e2e_tests/
-
-│   ├── load_tests/               # k6 performance tests
-
-│   │   ├── smoke_test.js
-
-│   │   └── average_test.js
-
-│   ├── conftest.py               # Shared test fixtures
-
-│   └── helpers.py                # Helper functions
-
-├── allure-results/               # Allure test results (generated)
-
-├── pytest.ini                    # Pytest configuration
-
-├── requirements-test.txt         # Python dependencies
-
-└── README.md                     # This file
-
+## CI/CD
+### - api-ui-tests.yml<br>
+  Launching:  every push to [main, master]<br>
+  After changing:<br>
+      - '.github/workflows/api-ui-tests.yml'<br>
+      - 'tests/api/*'<br>
+      - 'tests/ui/*'<br>
+      - 'tests/conftest.py'<br>
+      - 'tests/helpers.py'<br>
+      - 'tests/test_data.py'<br>
+      - 'tests/files_for_tests/*'<br>
+### - load-tests.yml<br>
+  Launching: every push to [main, master]<br>
+  After changing:<br>
+      - '.github/workflows/load-tests.yml'<br>
+      - 'tests/load_tests/*'<br>
+      - 'tests/files_for_tests/*'<br>
 
 ## Reports
 
-- api and ui tests 
-  Allure report
+- api and ui tests<br>
+  Allure report<br>
   https://explrprobe-tech.github.io/my_django_news_tests/allure/
-- performance smoke test
-  K6-web-dashboard report
+- performance smoke test<br>
+  K6-web-dashboard report<br>
   https://explrprobe-tech.github.io/my_django_news_tests/k6-smoke/index.html
-- performance average test
-  K6-web-dashboard report
+- performance average test<br>
+  K6-web-dashboard report<br>
   https://explrprobe-tech.github.io/my_django_news_tests/k6-average/index.html
 
 
 ## Installing
 
-1. Create folder website
-   mkdir website
-2. Clone my_django_news_website repository
-   git clone https://github.com/explrprobe-tech/my_django_news_website.git
-3. Clone my_django_news_tests repository
-   git clone https://github.com/explrprobe-tech/my_django_news_tests.git
-4. Create my_django_news_website docker image
-   cd my_django_news_website/mysite
-   docker build -t mysite-web
-5. Run api tests
-   cd ../../my_django_news_tests/
-   docker-compose -f docker-compose-api-ui.yml up api-test-runner --build
-6. Run ui tests
-   docker-compose -f docker-compose-api-ui.yml up ui-test-runner --build
-7. Run load k6-smoke tests
-   docker-compose -f docker-compose-load.yml up k6-smoke --build
-8. Run load k6-average tests
-   docker-compose -f docker-compose-load.yml up k6-average --build
+1. Create folder website<br>
+   mkdir website<br>
+2. Clone my_django_news_website repository<br>
+   git clone https://github.com/explrprobe-tech/my_django_news_website.git<br>
+3. Clone my_django_news_tests repository<br>
+   git clone https://github.com/explrprobe-tech/my_django_news_tests.git<br>
+4. Create my_django_news_website docker image<br>
+   cd my_django_news_website/mysite<br>
+   docker build -t mysite-web<br>
+5. Run api tests<br>
+   cd ../../my_django_news_tests/<br>
+   docker-compose -f docker-compose-api-ui.yml up api-test-runner --build<br>
+6. Run ui tests<br>
+   docker-compose -f docker-compose-api-ui.yml up ui-test-runner --build<br>
+7. Run load k6-smoke tests<br>
+   docker-compose -f docker-compose-load.yml up k6-smoke --build<br>
+8. Run load k6-average tests<br>
+   docker-compose -f docker-compose-load.yml up k6-average --build<br>
