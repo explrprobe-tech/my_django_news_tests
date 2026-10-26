@@ -24,19 +24,24 @@ my_django_news_tests/<br>
 │<br>
 ├── tests/<br>
 │   ├── api/                      # API tests<br>
+|   |   ├── api_objects/<br>
 │   │   ├── test_auth.py<br>
+│   │   └── test_categories.py<br>
 │   │   └── test_news.py<br>
+│   │   └── test_secret_page.py<br>
 │&nbsp;│<br>
 │   ├── ui/                       # UI tests with Playwright<br>
+│   │   ├── e2e_tests/<br>
 │   │   ├── page_tests/<br>
-│   │   └── e2e_tests/<br>
+│   │   └── ui_objects/<br>
 │&nbsp;│<br>
 │   ├── load_tests/               # k6 performance tests<br>
 │   │   ├── smoke_test.js<br>
 │   │   └── average_test.js<br>
 │&nbsp;│<br>
 │   ├── conftest.py               # Shared test fixtures<br>
-│   └── helpers.py                # Helper functions<br> 
+│   ├── helpers.py                # Helper functions<br> 
+│   └── local_run_load_tests.py   # Runner for load test with own database<br> 
 │<br>
 ├── allure-results/               # Allure test results (generated)<br>
 ├── pytest.ini                    # Pytest configuration<br>
