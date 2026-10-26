@@ -24,7 +24,7 @@ my_django_news_tests/<br>
 │<br>
 ├── tests/<br>
 │   ├── api/                      # API tests<br>
-|   |   ├── api_objects/<br>
+│   │   ├── api_objects/<br>
 │   │   ├── test_auth.py<br>
 │   │   └── test_categories.py<br>
 │   │   └── test_news.py<br>
